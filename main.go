@@ -6,56 +6,53 @@ import (
 
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/database"
+	"github.com/Wosiu6/patwos-api/middleware"
 	"github.com/Wosiu6/patwos-api/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 )
 
 func main() {
-	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	// Initialize configuration
 	cfg := config.LoadConfig()
 
-	// Connect to database
 	db, err := database.Connect(cfg)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Run migrations
 	if err := database.Migrate(db); err != nil {
 		log.Fatal("Failed to run migrations:", err)
 	}
 
-	// Set Gin mode
 	gin.SetMode(cfg.GinMode)
 
-	// Initialize router
-	router := gin.Default()
+	router := gin.New()
 
-	// Setup CORS middleware
-	router.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+	router.Use(gin.Recovery())
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
+	router.Use(gin.Logger())
+
+	router.Use(middleware.SecurityHeaders())
+
+	router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))
+
+	router.Use(middleware.CORSMiddleware(cfg.AllowedOrigins))
+
+	if len(cfg.TrustedProxies) > 0 {
+		if err := router.SetTrustedProxies(cfg.TrustedProxies); err != nil {
+			log.Printf("Warning: Failed to set trusted proxies: %v", err)
 		}
+	}
 
-		c.Next()
-	})
+	router.MaxMultipartMemory = cfg.MaxRequestSize
 
-	// Setup routes
 	routes.SetupRoutes(router, db, cfg)
 
-	// Start server
 	port := os.Getenv("API_PORT")
 	if port == "" {
 		port = "8080"

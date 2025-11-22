@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -21,18 +22,27 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is required")
+	}
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		log.Fatal("DB_PASSWORD environment variable is required")
+	}
+
 	return &Config{
 		DBHost:         getEnv("DB_HOST", "localhost"),
 		DBUser:         getEnv("DB_USER", "patwos"),
-		DBPassword:     getEnv("DB_PASSWORD", "password"),
 		DBName:         getEnv("DB_NAME", "patwos_db"),
 		DBPort:         getEnv("DB_PORT", "5432"),
-		JWTSecret:      getEnv("JWT_SECRET", "defaultsecret"),
+		JWTSecret:      jwtSecret,
+		DBPassword:     dbPassword,
 		APIPort:        getEnv("API_PORT", "8080"),
 		GinMode:        getEnv("GIN_MODE", "debug"),
 		AllowedOrigins: getEnvArray("ALLOWED_ORIGINS", []string{"*"}),
 		TrustedProxies: getEnvArray("TRUSTED_PROXIES", []string{}),
-		MaxRequestSize: getEnvInt64("MAX_REQUEST_SIZE", 10485760), // 10MB default
+		MaxRequestSize: getEnvInt64("MAX_REQUEST_SIZE", 10485760),
 	}
 }
 
@@ -45,7 +55,6 @@ func getEnv(key, defaultValue string) string {
 
 func getEnvArray(key string, defaultValue []string) []string {
 	if value := os.Getenv(key); value != "" {
-		// Split by comma for multiple values
 		var result []string
 		for _, v := range strings.Split(value, ",") {
 			trimmed := strings.TrimSpace(v)

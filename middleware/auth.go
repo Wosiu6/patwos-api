@@ -11,18 +11,25 @@ import (
 	"gorm.io/gorm"
 )
 
+type ErrorMessage string
+
+// TODO: think about more descriptive error messages without compromising security
+const (
+	ErrUnauthorized ErrorMessage = "unauthorized"
+)
+
 func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
@@ -34,33 +41,47 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return []byte(cfg.JWTSecret), nil
 		})
 
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+			c.Abort()
+			return
+		}
+
+		if !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
 
 		userID, ok := claims["user_id"].(float64)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID in token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+			c.Abort()
+			return
+		}
+
+		userState, ok := claims["state"].(models.UserState)
+		if !ok || userState != models.UserStatusActive {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
 
 		var user models.User
 		if err := db.First(&user, uint(userID)).Error; err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
 		}
 
+		// TODO: may be stale? think about removing user from context maybe
 		c.Set("user", user)
 		c.Set("user_id", user.ID)
 		c.Next()

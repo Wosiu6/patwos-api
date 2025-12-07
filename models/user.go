@@ -12,11 +12,20 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	State     UserState      `gorm:"not null;default:0" json:"state"`
 	Username  string         `gorm:"uniqueIndex;not null" json:"username" binding:"required,min=3,max=50"`
 	Email     string         `gorm:"uniqueIndex;not null" json:"email" binding:"required,email"`
 	Password  string         `gorm:"not null" json:"-"`
 	Comments  []Comment      `gorm:"foreignKey:UserID" json:"comments,omitempty"`
 }
+
+type UserState int
+
+const (
+	UserStatusActive UserState = iota
+	UserStatusInactive
+	UserStatusDeleted
+)
 
 type UserRegisterRequest struct {
 	Username string `json:"username" binding:"required,min=3,max=50"`

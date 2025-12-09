@@ -67,8 +67,8 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		userState, ok := claims["state"].(models.UserState)
-		if !ok || userState != models.UserStatusActive {
+		userState, ok := claims["state"].(float64)
+		if !ok || userState != float64(models.UserStatusActive) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return

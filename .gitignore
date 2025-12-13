@@ -26,6 +26,18 @@ go.work.sum
 
 # env file
 .env
+.env.*
+.env.local
+.env.docker
+.env.production
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Data directories
+data/
+*.log
 
 # Editor/IDE
 # .idea/

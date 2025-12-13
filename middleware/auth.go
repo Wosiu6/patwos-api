@@ -74,6 +74,13 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		userRole, ok := claims["role"].(float64)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+			c.Abort()
+			return
+		}
+
 		var user models.User
 		if err := db.First(&user, uint(userID)).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
@@ -81,9 +88,9 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		// TODO: may be stale? think about removing user from context maybe
 		c.Set("user", user)
 		c.Set("user_id", user.ID)
+		c.Set("user_role", models.UserRole(userRole))
 		c.Next()
 	}
 }

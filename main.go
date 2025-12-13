@@ -62,4 +62,6 @@ func main() {
 	if err := router.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
+
+	log.Printf("Api up and running")
 }

@@ -48,6 +48,7 @@ func (s *authService) Register(username, email, password string) (*models.User, 
 		Username: username,
 		Email:    email,
 		State:    models.UserStatusActive,
+		Role:     models.UserRoleUser,
 	}
 
 	if err := user.HashPassword(password); err != nil {
@@ -58,7 +59,7 @@ func (s *authService) Register(username, email, password string) (*models.User, 
 		return nil, "", err
 	}
 
-	token, err := s.generateToken(user.ID, user.State)
+	token, err := s.generateToken(user.ID, user.State, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -83,7 +84,7 @@ func (s *authService) Login(email, password string) (*models.User, string, error
 		return nil, "", ErrUnauthorized
 	}
 
-	token, err := s.generateToken(user.ID, user.State)
+	token, err := s.generateToken(user.ID, user.State, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -102,12 +103,13 @@ func (s *authService) GetUserByID(id uint) (*models.User, error) {
 	return user, nil
 }
 
-func (s *authService) generateToken(userID uint, userState models.UserState) (string, error) {
+func (s *authService) generateToken(userID uint, userState models.UserState, userRole models.UserRole) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(),
 		"iat":     time.Now().Unix(),
 		"state":   userState,
+		"role":    userRole,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

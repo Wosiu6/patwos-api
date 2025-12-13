@@ -18,14 +18,17 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	userRepo := repository.NewUserRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
 	voteRepo := repository.NewVoteRepository(db)
+	articleRepo := repository.NewArticleRepository(db)
 
 	authService := service.NewAuthService(userRepo, cfg)
 	commentService := service.NewCommentService(commentRepo)
 	voteService := service.NewVoteService(voteRepo)
+	articleService := service.NewArticleService(articleRepo, userRepo)
 
 	authController := controllers.NewAuthController(authService)
 	commentController := controllers.NewCommentController(commentService)
 	voteController := controllers.NewVoteController(voteService)
+	articleController := controllers.NewArticleController(articleService)
 
 	v1 := router.Group("/api/v1")
 	{
@@ -53,6 +56,16 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
 			votes.POST("", middleware.AuthMiddleware(db, cfg), voteController.Vote)
 			votes.DELETE("/:article_id", middleware.AuthMiddleware(db, cfg), voteController.RemoveVote)
+		}
+		articles := v1.Group("/articles")
+		{
+			articles.GET("", articleController.GetArticles)
+			articles.GET("/:id", articleController.GetArticle)
+
+			articles.POST("", middleware.AuthMiddleware(db, cfg), middleware.AdminMiddleware(db), articleController.CreateArticle)
+			articles.PUT("/:id", middleware.AuthMiddleware(db, cfg), articleController.UpdateArticle)
+			articles.PATCH("/:id", middleware.AuthMiddleware(db, cfg), articleController.UpdateArticle)
+			articles.DELETE("/:id", middleware.AuthMiddleware(db, cfg), articleController.DeleteArticle)
 		}
 	}
 }

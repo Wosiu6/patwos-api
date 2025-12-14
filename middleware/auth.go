@@ -34,6 +34,14 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		var revokedToken models.RevokedToken
+		if err := db.Where("token = ?", tokenString).First(&revokedToken).Error; err == nil {
+			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "token revoked"})
+			c.Abort()
+			return
+		}
+
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
@@ -42,6 +50,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		})
 
 		if err != nil {
+			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Invalid token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Error: " + err.Error() + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return
@@ -74,6 +83,13 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		userRole, ok := claims["role"].(float64)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+			c.Abort()
+			return
+		}
+
 		var user models.User
 		if err := db.First(&user, uint(userID)).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
@@ -81,9 +97,9 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		// TODO: may be stale? think about removing user from context maybe
 		c.Set("user", user)
 		c.Set("user_id", user.ID)
+		c.Set("user_role", models.UserRole(userRole))
 		c.Next()
 	}
 }

@@ -1,11 +1,16 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
+RUN apk add --no-cache git ca-certificates
+
 COPY go.mod go.sum ./
 
-RUN go mod download
+RUN go env -w GOPROXY=https://proxy.golang.org,direct && \
+    go env -w GOSUMDB=sum.golang.org && \
+    go mod download && \
+    go mod verify
 
 COPY . .
 

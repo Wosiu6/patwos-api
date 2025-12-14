@@ -20,14 +20,18 @@ func main() {
 
 	cfg := config.LoadConfig()
 
+	log.Printf("[DATABASE] Connecting to %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
 	db, err := database.Connect(cfg)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatalf("[ERROR] Failed to connect to database: %v", err)
 	}
+	log.Printf("[DATABASE] Connected successfully")
 
+	log.Printf("[DATABASE] Running migrations...")
 	if err := database.Migrate(db); err != nil {
-		log.Fatal("Failed to run migrations:", err)
+		log.Fatalf("[ERROR] Failed to run migrations: %v", err)
 	}
+	log.Printf("[DATABASE] Migrations completed")
 
 	gin.SetMode(cfg.GinMode)
 
@@ -36,6 +40,8 @@ func main() {
 	router.Use(gin.Recovery())
 
 	router.Use(gin.Logger())
+
+	router.Use(middleware.RequestLogger())
 
 	router.Use(middleware.SecurityHeaders())
 
@@ -58,8 +64,15 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Starting server on port %s", port)
+	log.Printf("[STARTUP] Configuration loaded:")
+	log.Printf("  - Database: %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
+	log.Printf("  - Port: %s", port)
+	log.Printf("  - Mode: %s", cfg.GinMode)
+	log.Printf("  - CORS Origins: %v", cfg.AllowedOrigins)
+	log.Printf("  - Rate Limit: 100 req/s, burst: 200")
+	log.Printf("[STARTUP] Starting server on port %s", port)
+	log.Printf("[STARTUP] API ready - Health: http://localhost:%s/health", port)
 	if err := router.Run(":" + port); err != nil {
-		log.Fatal("Failed to start server:", err)
+		log.Fatal("[ERROR] Failed to start server:", err)
 	}
 }

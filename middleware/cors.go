@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,11 @@ import (
 func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
+
+		if origin == "" {
+			c.Next()
+			return
+		}
 
 		allowed := false
 		if len(allowedOrigins) > 0 {
@@ -22,6 +28,7 @@ func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 		}
 
 		if !allowed && len(allowedOrigins) > 0 {
+			gin.DefaultWriter.Write([]byte("[CORS-BLOCKED] Origin: " + origin + " | Path: " + c.Request.URL.Path + " | AllowedOrigins: " + fmt.Sprint(allowedOrigins) + " | Status: 403\n"))
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "Origin not allowed",
 			})

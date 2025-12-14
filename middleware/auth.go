@@ -13,9 +13,12 @@ import (
 
 type ErrorMessage string
 
-// TODO: think about more descriptive error messages without compromising security
 const (
-	ErrUnauthorized ErrorMessage = "unauthorized"
+	ErrUnauthorized   ErrorMessage = "unauthorized"
+	ErrTokenExpired   ErrorMessage = "token_expired"
+	ErrTokenRevoked   ErrorMessage = "token_revoked"
+	ErrTokenInvalid   ErrorMessage = "token_invalid"
+	ErrSessionExpired ErrorMessage = "session_expired"
 )
 
 func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
@@ -37,10 +40,11 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		var revokedToken models.RevokedToken
 		if err := db.Where("token = ?", tokenString).First(&revokedToken).Error; err == nil {
 			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "token revoked"})
-			c.Abort()
-			return
-		}
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   string(ErrTokenRevoked),
+			"message": "Your session has been logged out. Please log in again.",
+			"code":    "TOKEN_REVOKED",
+		})
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -51,9 +55,20 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 
 		if err != nil {
 			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Invalid token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Error: " + err.Error() + " | Status: 401\n"))
-			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
-			c.Abort()
-			return
+		
+		if err == jwt.ErrTokenExpired || (token != nil && !token.Valid) {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   string(ErrTokenExpired),
+				"message": "Your session has expired. Please log in again.",
+				"code":    "TOKEN_EXPIRED",
+			})
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   string(ErrTokenInvalid),
+				"message": "Invalid authentication token. Please log in again.",
+				"code":    "TOKEN_INVALID",
+			})
+		}
 		}
 
 		if !token.Valid {

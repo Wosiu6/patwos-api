@@ -27,5 +27,6 @@ func Migrate(db *gorm.DB) error {
 		&models.Article{},
 		&models.Comment{},
 		&models.ArticleVote{},
+		&models.RevokedToken{},
 	)
 }

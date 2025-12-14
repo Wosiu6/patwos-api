@@ -20,7 +20,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	voteRepo := repository.NewVoteRepository(db)
 	articleRepo := repository.NewArticleRepository(db)
 
-	authService := service.NewAuthService(userRepo, cfg)
+	authService := service.NewAuthService(userRepo, cfg, db)
 	commentService := service.NewCommentService(commentRepo)
 	voteService := service.NewVoteService(voteRepo)
 	articleService := service.NewArticleService(articleRepo, userRepo)
@@ -37,6 +37,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 			auth.POST("/register", middleware.StrictRateLimitMiddleware(), authController.Register)
 			auth.POST("/login", middleware.StrictRateLimitMiddleware(), authController.Login)
 			auth.GET("/me", middleware.AuthMiddleware(db, cfg), authController.GetCurrentUser)
+			auth.POST("/logout", middleware.AuthMiddleware(db, cfg), authController.Logout)
 		}
 
 		comments := v1.Group("/comments")

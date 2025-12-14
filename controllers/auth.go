@@ -72,3 +72,21 @@ func (ac *AuthController) GetCurrentUser(c *gin.Context) {
 	currentUser := user.(models.User)
 	c.JSON(http.StatusOK, gin.H{"user": currentUser.ToResponse()})
 }
+
+func (ac *AuthController) Logout(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	authHeader := c.GetHeader("Authorization")
+	token := authHeader[7:]
+
+	if err := ac.service.Logout(token, userID.(uint)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}

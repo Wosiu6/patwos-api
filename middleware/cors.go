@@ -17,17 +17,22 @@ func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 		}
 
 		allowed := false
+		allowedOrigin := ""
 		if len(allowedOrigins) > 0 {
-			for _, allowedOrigin := range allowedOrigins {
-				if allowedOrigin == "*" || allowedOrigin == origin {
+			for _, ao := range allowedOrigins {
+				if ao == "*" {
 					allowed = true
-					c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+					allowedOrigin = "*"
+					break
+				} else if ao == origin {
+					allowed = true
+					allowedOrigin = origin
 					break
 				}
 			}
 		}
 
-		if !allowed && len(allowedOrigins) > 0 {
+		if !allowed {
 			gin.DefaultWriter.Write([]byte("[CORS-BLOCKED] Origin: " + origin + " | Path: " + c.Request.URL.Path + " | AllowedOrigins: " + fmt.Sprint(allowedOrigins) + " | Status: 403\n"))
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "Origin not allowed",
@@ -35,6 +40,7 @@ func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 			return
 		}
 
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")

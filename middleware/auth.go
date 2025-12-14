@@ -36,6 +36,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 
 		var revokedToken models.RevokedToken
 		if err := db.Where("token = ?", tokenString).First(&revokedToken).Error; err == nil {
+			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "token revoked"})
 			c.Abort()
 			return
@@ -49,6 +50,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		})
 
 		if err != nil {
+			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Invalid token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Error: " + err.Error() + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return

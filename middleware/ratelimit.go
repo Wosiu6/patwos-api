@@ -56,9 +56,12 @@ func RateLimitMiddleware(rateLimit rate.Limit, burstSize int) gin.HandlerFunc {
 		limiter := limiter.GetLimiter(ip)
 
 		if !limiter.Allow() {
+			c.Writer.Header().Set("X-RateLimit-Limit", "100")
+			c.Writer.Header().Set("X-RateLimit-Remaining", "0")
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"error": "Rate limit exceeded. Please try again later.",
 			})
+			gin.DefaultWriter.Write([]byte("[RATE-LIMIT] IP: " + ip + " | Path: " + c.Request.URL.Path + " | Method: " + c.Request.Method + " | Status: 429\n"))
 			c.Abort()
 			return
 		}
@@ -75,9 +78,12 @@ func StrictRateLimitMiddleware() gin.HandlerFunc {
 		limiter := limiter.GetLimiter(ip)
 
 		if !limiter.Allow() {
+			c.Writer.Header().Set("X-RateLimit-Limit", "5")
+			c.Writer.Header().Set("X-RateLimit-Remaining", "0")
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"error": "Too many attempts. Please try again later.",
 			})
+			gin.DefaultWriter.Write([]byte("[STRICT-RATE-LIMIT] IP: " + ip + " | Path: " + c.Request.URL.Path + " | Status: 429\n"))
 			c.Abort()
 			return
 		}

@@ -14,9 +14,9 @@ var (
 )
 
 type VoteService interface {
-	Vote(articleID string, userID uint, voteType models.VoteType) error
-	RemoveVote(articleID string, userID uint) error
-	GetVoteCounts(articleID string, userID *uint) (*models.VoteCounts, error)
+	Vote(articleID uint, userID uint, voteType models.VoteType) error
+	RemoveVote(articleID uint, userID uint) error
+	GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error)
 }
 
 type voteService struct {
@@ -27,7 +27,7 @@ func NewVoteService(repo repository.VoteRepository) VoteService {
 	return &voteService{repo: repo}
 }
 
-func (s *voteService) Vote(articleID string, userID uint, voteType models.VoteType) error {
+func (s *voteService) Vote(articleID uint, userID uint, voteType models.VoteType) error {
 	if !voteType.IsValid() {
 		return ErrInvalidVoteType
 	}
@@ -54,10 +54,10 @@ func (s *voteService) Vote(articleID string, userID uint, voteType models.VoteTy
 	return s.repo.Create(vote)
 }
 
-func (s *voteService) RemoveVote(articleID string, userID uint) error {
+func (s *voteService) RemoveVote(articleID uint, userID uint) error {
 	return s.repo.Delete(articleID, userID)
 }
 
-func (s *voteService) GetVoteCounts(articleID string, userID *uint) (*models.VoteCounts, error) {
+func (s *voteService) GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error) {
 	return s.repo.GetVoteCounts(articleID, userID)
 }

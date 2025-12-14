@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Wosiu6/patwos-api/models"
 	"github.com/Wosiu6/patwos-api/service"
@@ -34,7 +35,8 @@ func (vc *VoteController) Vote(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vote type. Use 'like' or 'dislike'"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process vote"})
+		gin.DefaultWriter.Write([]byte("[VOTE-ERROR] ArticleID: " + strconv.Itoa(int(req.ArticleID)) + " | UserID: " + strconv.Itoa(int(userID.(uint))) + " | Error: " + err.Error() + "\n"))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process vote", "details": err.Error()})
 		return
 	}
 
@@ -58,19 +60,20 @@ func (vc *VoteController) RemoveVote(c *gin.Context) {
 		return
 	}
 
-	articleID := c.Param("article_id")
-	if articleID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Article ID is required"})
+	articleIDStr := c.Param("article_id")
+	articleID, err := strconv.ParseUint(articleIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
 		return
 	}
 
-	if err := vc.service.RemoveVote(articleID, userID.(uint)); err != nil {
+	if err := vc.service.RemoveVote(uint(articleID), userID.(uint)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove vote"})
 		return
 	}
 
 	uid := userID.(uint)
-	counts, err := vc.service.GetVoteCounts(articleID, &uid)
+	counts, err := vc.service.GetVoteCounts(uint(articleID), &uid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
 		return
@@ -83,9 +86,10 @@ func (vc *VoteController) RemoveVote(c *gin.Context) {
 }
 
 func (vc *VoteController) GetVoteCounts(c *gin.Context) {
-	articleID := c.Param("article_id")
-	if articleID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Article ID is required"})
+	articleIDStr := c.Param("article_id")
+	articleID, err := strconv.ParseUint(articleIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
 		return
 	}
 
@@ -95,7 +99,7 @@ func (vc *VoteController) GetVoteCounts(c *gin.Context) {
 		userIDPtr = &uid
 	}
 
-	counts, err := vc.service.GetVoteCounts(articleID, userIDPtr)
+	counts, err := vc.service.GetVoteCounts(uint(articleID), userIDPtr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
 		return

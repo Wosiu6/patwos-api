@@ -16,8 +16,8 @@ var (
 )
 
 type ArticleService interface {
-	CreateArticle(title, content string, authorID uint) (*models.Article, error)
-	UpdateArticle(articleID uint, title, content string, userID uint) (*models.Article, error)
+	CreateArticle(title string, authorID uint) (*models.Article, error)
+	UpdateArticle(articleID uint, title string, userID uint) (*models.Article, error)
 	DeleteArticle(articleID uint, userID uint) error
 	GetArticle(articleID uint) (*models.Article, error)
 	GetArticleBySlug(slug string) (*models.Article, error)
@@ -36,18 +36,17 @@ func NewArticleService(repo repository.ArticleRepository, userRepo repository.Us
 	}
 }
 
-func (s *articleService) CreateArticle(title, content string, authorID uint) (*models.Article, error) {
+func (s *articleService) CreateArticle(title string, authorID uint) (*models.Article, error) {
 	articleSlug := slug.Make(title)
 
 	existing, _ := s.repo.FindBySlug(articleSlug)
 	if existing != nil {
-		articleSlug = slug.Make(title + "-" + strings.Split(slug.Make(content), "-")[0])
+		articleSlug = articleSlug + "-" + slug.Make(strings.Split(title, " ")[0])
 	}
 
 	article := &models.Article{
 		Title:    title,
 		Slug:     articleSlug,
-		Content:  content,
 		AuthorID: authorID,
 	}
 
@@ -58,7 +57,7 @@ func (s *articleService) CreateArticle(title, content string, authorID uint) (*m
 	return s.repo.FindByID(article.ID)
 }
 
-func (s *articleService) UpdateArticle(articleID uint, title, content string, userID uint) (*models.Article, error) {
+func (s *articleService) UpdateArticle(articleID uint, title string, userID uint) (*models.Article, error) {
 	article, err := s.repo.FindByID(articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -79,9 +78,6 @@ func (s *articleService) UpdateArticle(articleID uint, title, content string, us
 	if title != "" {
 		article.Title = title
 		article.Slug = slug.Make(title)
-	}
-	if content != "" {
-		article.Content = content
 	}
 
 	if err := s.repo.Update(article); err != nil {

@@ -18,19 +18,20 @@ type ArticleVote struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	ArticleID string         `gorm:"not null;index:idx_article_user,unique" json:"article_id"`
+	ArticleID uint           `gorm:"not null;index:idx_article_user,unique" json:"article_id"`
 	UserID    uint           `gorm:"not null;index:idx_article_user,unique" json:"user_id"`
 	VoteType  VoteType       `gorm:"type:varchar(10);not null" json:"vote_type"`
 	User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Article   Article        `gorm:"foreignKey:ArticleID" json:"article,omitempty"`
 }
 
 type VoteRequest struct {
-	ArticleID string   `json:"article_id" binding:"required"`
+	ArticleID uint     `json:"article_id" binding:"required"`
 	VoteType  VoteType `json:"vote_type" binding:"required,oneof=like dislike"`
 }
 
 type VoteCounts struct {
-	ArticleID    string `json:"article_id"`
+	ArticleID    uint   `json:"article_id"`
 	Likes        int64  `json:"likes"`
 	Dislikes     int64  `json:"dislikes"`
 	UserVote     string `json:"user_vote,omitempty"`

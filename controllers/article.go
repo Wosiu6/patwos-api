@@ -27,7 +27,12 @@ func (ac *ArticleController) GetArticles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"articles": articles})
+	summaries := make([]models.ArticleSummaryResponse, len(articles))
+	for i, article := range articles {
+		summaries[i] = article.ToSummaryResponse()
+	}
+
+	c.JSON(http.StatusOK, gin.H{"articles": summaries})
 }
 
 func (ac *ArticleController) GetArticle(c *gin.Context) {
@@ -75,7 +80,7 @@ func (ac *ArticleController) CreateArticle(c *gin.Context) {
 		return
 	}
 
-	article, err := ac.service.CreateArticle(req.Title, req.Content, userID.(uint))
+	article, err := ac.service.CreateArticle(req.Title, userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create article"})
 		return
@@ -103,7 +108,7 @@ func (ac *ArticleController) UpdateArticle(c *gin.Context) {
 		return
 	}
 
-	article, err := ac.service.UpdateArticle(uint(articleID), req.Title, req.Content, userID.(uint))
+	article, err := ac.service.UpdateArticle(uint(articleID), req.Title, userID.(uint))
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})

@@ -1,0 +1,66 @@
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosec
+    - gocyclo
+    - gofmt
+    - goimports
+    - misspell
+    - unconvert
+    - dupl
+    - goconst
+    - bodyclose
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - exportloopref
+    - exhaustive
+    - funlen
+    - gocognit
+    - nestif
+    - prealloc
+    - revive
+    - stylecheck
+    - unparam
+
+linters-settings:
+  gosec:
+    severity: "low"
+    confidence: "low"
+    excludes:
+      - G104
+  gocyclo:
+    min-complexity: 15
+  funlen:
+    lines: 100
+    statements: 50
+  gocognit:
+    min-complexity: 20
+  nestif:
+    min-complexity: 5
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gosec
+        - dupl
+        - funlen
+        - gocognit
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+
+run:
+  timeout: 5m
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true

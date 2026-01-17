@@ -22,6 +22,9 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) error {
+	db.Exec("DELETE FROM article_votes v WHERE NOT EXISTS (SELECT 1 FROM articles a WHERE a.id = v.article_id)")
+	db.Exec("DELETE FROM article_votes v WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = v.user_id)")
+
 	return db.AutoMigrate(
 		&models.User{},
 		&models.Article{},

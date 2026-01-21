@@ -22,6 +22,8 @@ type ArticleService interface {
 	GetArticle(articleID uint) (*models.Article, error)
 	GetArticleBySlug(slug string) (*models.Article, error)
 	GetAllArticles(limit, offset int) ([]models.ArticleResponse, error)
+	GetArticleViews(articleID uint) (uint, error)
+	IncrementArticleViews(articleID uint) (uint, error)
 }
 
 type articleService struct {
@@ -149,4 +151,26 @@ func (s *articleService) GetAllArticles(limit, offset int) ([]models.ArticleResp
 	}
 
 	return response, nil
+}
+
+func (s *articleService) GetArticleViews(articleID uint) (uint, error) {
+	_, err := s.repo.FindByID(articleID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, ErrArticleNotFound
+		}
+		return 0, err
+	}
+	return s.repo.GetViews(articleID)
+}
+
+func (s *articleService) IncrementArticleViews(articleID uint) (uint, error) {
+	_, err := s.repo.FindByID(articleID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, ErrArticleNotFound
+		}
+		return 0, err
+	}
+	return s.repo.IncrementViews(articleID)
 }

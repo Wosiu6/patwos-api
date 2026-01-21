@@ -12,6 +12,8 @@ type ArticleRepository interface {
 	FindByID(id uint) (*models.Article, error)
 	FindBySlug(slug string) (*models.Article, error)
 	FindAll(limit, offset int) ([]models.Article, error)
+	GetViews(id uint) (uint, error)
+	IncrementViews(id uint) (uint, error)
 }
 
 type articleRepository struct {
@@ -60,4 +62,22 @@ func (r *articleRepository) FindAll(limit, offset int) ([]models.Article, error)
 		Offset(offset).
 		Find(&articles).Error
 	return articles, err
+}
+
+func (r *articleRepository) GetViews(id uint) (uint, error) {
+	var views uint
+	err := r.db.Model(&models.Article{}).Select("views").Where("id = ?", id).Scan(&views).Error
+	if err != nil {
+		return 0, err
+	}
+	return views, nil
+}
+
+func (r *articleRepository) IncrementViews(id uint) (uint, error) {
+	if err := r.db.Model(&models.Article{}).
+		Where("id = ?", id).
+		UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
+		return 0, err
+	}
+	return r.GetViews(id)
 }

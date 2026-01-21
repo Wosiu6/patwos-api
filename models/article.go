@@ -17,6 +17,7 @@ type Article struct {
 	Author    User           `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
 	Comments  []Comment      `gorm:"foreignKey:ArticleID" json:"comments,omitempty"`
 	Votes     []ArticleVote  `gorm:"foreignKey:ArticleID" json:"votes,omitempty"`
+	Views     uint           `gorm:"not null;default:0" json:"views"`
 }
 
 type CreateArticleRequest struct {
@@ -34,6 +35,7 @@ type ArticleResponse struct {
 	Author    UserResponse `json:"author"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt time.Time    `json:"updated_at"`
+	Views     uint         `json:"views"`
 }
 
 type ArticleSummaryResponse struct {
@@ -43,6 +45,7 @@ type ArticleSummaryResponse struct {
 	Author    UserResponse `json:"author"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt time.Time    `json:"updated_at"`
+	Views     uint         `json:"views"`
 }
 
 func (a *Article) ToResponse() ArticleResponse {
@@ -53,6 +56,7 @@ func (a *Article) ToResponse() ArticleResponse {
 		Author:    a.Author.ToResponse(),
 		CreatedAt: a.CreatedAt,
 		UpdatedAt: a.UpdatedAt,
+		Views:     a.Views,
 	}
 }
 
@@ -64,5 +68,6 @@ func (a *Article) ToSummaryResponse() ArticleSummaryResponse {
 		Author:    a.Author.ToResponse(),
 		CreatedAt: a.CreatedAt,
 		UpdatedAt: a.UpdatedAt,
+		Views:     a.Views,
 	}
 }

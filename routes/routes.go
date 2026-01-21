@@ -62,6 +62,8 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 		{
 			articles.GET("", articleController.GetArticles)
 			articles.GET("/:id", articleController.GetArticle)
+			articles.GET("/:id/views", articleController.GetArticleViews)
+			articles.POST("/:id/views/increment", articleController.IncrementArticleViews)
 
 			articles.POST("", middleware.AuthMiddleware(db, cfg), middleware.AdminMiddleware(db), articleController.CreateArticle)
 			articles.PUT("/:id", middleware.AuthMiddleware(db, cfg), articleController.UpdateArticle)

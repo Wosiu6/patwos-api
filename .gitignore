@@ -43,3 +43,4 @@ data/
 # .idea/
 # .vscode/
 .vscode/launch.json
+migrations/seed_initial.sql

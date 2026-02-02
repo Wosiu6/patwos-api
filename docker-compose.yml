@@ -1,55 +1,67 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: patwos-postgres
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U patwos"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - patwos-network
-
-  api:
-    image: wosiu6/patwos-api:latest
+  # PatWos - Api: my api for my portfolio
+  patwos-api:
     container_name: patwos-api
-    environment:
-      DB_HOST: postgres
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      DB_PORT: 5432
-      JWT_SECRET: ${JWT_SECRET}
-      GIN_MODE: release
-      PORT: 8080
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
-      MAX_REQUEST_SIZE: 10485760
+    image: ghcr.io/wosiu6/patwos-api:latest
+    profiles: ["apps", "all"]
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - default
+      - t3_proxy
     ports:
-      - "8080:8080"
+      - "${PATWOS_API_PORT}:8080"
+    depends_on:
+      patwos-api-db:
+        condition: service_healthy
+    healthcheck:
+      disable: false
     volumes:
       - ./data/logs:/app/logs
       - ./data/uploads:/app/uploads
       - ./data/cache:/app/cache
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - patwos-network
-    restart: unless-stopped
+    environment:
+      DB_PASSWORD: ${PATWOS_API_DB_PASSWORD}
+      DB_HOST: ${PATWOS_API_DB_HOST}
+      DB_USER: ${PATWOS_API_DB_USER}
+      DB_NAME: ${PATWOS_API_DB_NAME}
+      API_PORT: ${PATWOS_API_PORT}
+      GIN_MODE: release
+      ALLOWED_ORIGINS: ${PATWOS_API_ALLOWED_ORIGINS}
+      MAX_REQUEST_SIZE: ${PATWOS_API_MAX_REQUEST_SIZE}
+      JWT_SECRET: ${PATWOS_API_JWT_SECRET}
 
-volumes:
-  postgres_data:
+  # PostgreSQL - Database for Patwos-api
+  patwos-api-db:
+    container_name: patwos-api-db
+    image: postgres:17.6-alpine3.22
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    profiles: ["core", "all"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${PATWOS_API_DB_NAME} -U $${PATWOS_API_DB_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    networks:
+      - default
+    ports:
+      - "$PATWOS_API_DB_PORT:5432"
+    command: -c max_connections=200
+    volumes:
+      - $DOCKERDIR/appdata/patwos-api-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=$PATWOS_API_DB_NAME
+      - POSTGRES_USER=$PATWOS_API_DB_USER
+      - POSTGRES_PASSWORD=$PATWOS_API_DB_PASSWORD
 
 networks:
-  patwos-network:
+  default:
     driver: bridge
+  t3_proxy:
+    external: true
+
+  

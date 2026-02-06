@@ -21,7 +21,7 @@ func (ac *ArticleController) GetArticles(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
-	articles, err := ac.service.GetAllArticles(limit, offset)
+	articles, err := ac.service.GetAllArticles(c.Request.Context(), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch articles"})
 		return
@@ -33,7 +33,7 @@ func (ac *ArticleController) GetArticles(c *gin.Context) {
 			ID:        article.ID,
 			Title:     article.Title,
 			Slug:      article.Slug,
-			Author:    article.Author,
+			Author:    article.Author.ToResponse(),
 			CreatedAt: article.CreatedAt,
 			UpdatedAt: article.UpdatedAt,
 			Views:     article.Views,
@@ -49,7 +49,7 @@ func (ac *ArticleController) GetArticle(c *gin.Context) {
 	articleID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
 		slug := id
-		article, err := ac.service.GetArticleBySlug(slug)
+		article, err := ac.service.GetArticleBySlug(c.Request.Context(), slug)
 		if err != nil {
 			if err == service.ErrArticleNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -62,7 +62,7 @@ func (ac *ArticleController) GetArticle(c *gin.Context) {
 		return
 	}
 
-	article, err := ac.service.GetArticle(uint(articleID))
+	article, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -88,7 +88,7 @@ func (ac *ArticleController) CreateArticle(c *gin.Context) {
 		return
 	}
 
-	article, err := ac.service.CreateArticle(req.Title, userID.(uint))
+	article, err := ac.service.CreateArticle(c.Request.Context(), req.Title, userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create article"})
 		return
@@ -116,7 +116,7 @@ func (ac *ArticleController) UpdateArticle(c *gin.Context) {
 		return
 	}
 
-	article, err := ac.service.UpdateArticle(uint(articleID), req.Title, userID.(uint))
+	article, err := ac.service.UpdateArticle(c.Request.Context(), uint(articleID), req.Title, userID.(uint))
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -146,7 +146,7 @@ func (ac *ArticleController) DeleteArticle(c *gin.Context) {
 		return
 	}
 
-	err = ac.service.DeleteArticle(uint(articleID), userID.(uint))
+	err = ac.service.DeleteArticle(c.Request.Context(), uint(articleID), userID.(uint))
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -171,7 +171,7 @@ func (ac *ArticleController) GetArticleViews(c *gin.Context) {
 	var article *serviceArticle
 	if err != nil {
 		// Treat as slug
-		a, err := ac.service.GetArticleBySlug(id)
+		a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
 		if err != nil {
 			if err == service.ErrArticleNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -182,7 +182,7 @@ func (ac *ArticleController) GetArticleViews(c *gin.Context) {
 		}
 		article = &serviceArticle{ID: a.ID}
 	} else {
-		a, err := ac.service.GetArticle(uint(articleID))
+		a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
 		if err != nil {
 			if err == service.ErrArticleNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -194,7 +194,7 @@ func (ac *ArticleController) GetArticleViews(c *gin.Context) {
 		article = &serviceArticle{ID: a.ID}
 	}
 
-	views, err := ac.service.GetArticleViews(article.ID)
+	views, err := ac.service.GetArticleViews(c.Request.Context(), article.ID)
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -214,7 +214,7 @@ func (ac *ArticleController) IncrementArticleViews(c *gin.Context) {
 	var article *serviceArticle
 	if err != nil {
 		// Treat as slug
-		a, err := ac.service.GetArticleBySlug(id)
+		a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
 		if err != nil {
 			if err == service.ErrArticleNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -225,7 +225,7 @@ func (ac *ArticleController) IncrementArticleViews(c *gin.Context) {
 		}
 		article = &serviceArticle{ID: a.ID}
 	} else {
-		a, err := ac.service.GetArticle(uint(articleID))
+		a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
 		if err != nil {
 			if err == service.ErrArticleNotFound {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -237,7 +237,7 @@ func (ac *ArticleController) IncrementArticleViews(c *gin.Context) {
 		article = &serviceArticle{ID: a.ID}
 	}
 
-	views, err := ac.service.IncrementArticleViews(article.ID)
+	views, err := ac.service.IncrementArticleViews(c.Request.Context(), article.ID)
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})

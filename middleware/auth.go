@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Wosiu6/patwos-api/authcache"
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/models"
 	"github.com/gin-gonic/gin"
@@ -39,8 +40,21 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		if authcache.IsRevoked(tokenString) {
+			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token (cache) | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   string(ErrTokenRevoked),
+				"message": "Your session has been logged out. Please log in again.",
+				"code":    "TOKEN_REVOKED",
+			})
+			c.Abort()
+			return
+		}
+
+		ctx := c.Request.Context()
 		var revokedToken models.RevokedToken
-		if err := db.Where("token = ? AND expires_at > ?", tokenString, time.Now()).First(&revokedToken).Error; err == nil {
+		if err := db.WithContext(ctx).Where("token = ? AND expires_at > ?", tokenString, time.Now()).First(&revokedToken).Error; err == nil {
+			authcache.Add(tokenString, revokedToken.ExpiresAt)
 			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   string(ErrTokenRevoked),
@@ -113,7 +127,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		}
 
 		var user models.User
-		if err := db.First(&user, uint(userID)).Error; err != nil {
+		if err := db.WithContext(ctx).First(&user, uint(userID)).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
 			c.Abort()
 			return

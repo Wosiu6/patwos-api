@@ -23,7 +23,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	user, token, err := ac.service.Register(req.Username, req.Email, req.Password)
+	user, token, err := ac.service.Register(c.Request.Context(), req.Username, req.Email, req.Password)
 	if err != nil {
 		if err == service.ErrUserAlreadyExists {
 			c.JSON(http.StatusConflict, gin.H{"error": "User with this email or username already exists"})
@@ -46,7 +46,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	user, token, err := ac.service.Login(req.Email, req.Password)
+	user, token, err := ac.service.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		if err == service.ErrInvalidCredentials {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -87,7 +87,7 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	}
 	token := authHeader[7:]
 
-	if err := ac.service.Logout(token, userID.(uint)); err != nil {
+	if err := ac.service.Logout(c.Request.Context(), token, userID.(uint)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
 		return
 	}

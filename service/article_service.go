@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -16,14 +17,14 @@ var (
 )
 
 type ArticleService interface {
-	CreateArticle(title string, authorID uint) (*models.Article, error)
-	UpdateArticle(articleID uint, title string, userID uint) (*models.Article, error)
-	DeleteArticle(articleID uint, userID uint) error
-	GetArticle(articleID uint) (*models.Article, error)
-	GetArticleBySlug(slug string) (*models.Article, error)
-	GetAllArticles(limit, offset int) ([]models.ArticleResponse, error)
-	GetArticleViews(articleID uint) (uint, error)
-	IncrementArticleViews(articleID uint) (uint, error)
+	CreateArticle(ctx context.Context, title string, authorID uint) (*models.Article, error)
+	UpdateArticle(ctx context.Context, articleID uint, title string, userID uint) (*models.Article, error)
+	DeleteArticle(ctx context.Context, articleID uint, userID uint) error
+	GetArticle(ctx context.Context, articleID uint) (*models.Article, error)
+	GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error)
+	GetAllArticles(ctx context.Context, limit, offset int) ([]models.ArticleResponse, error)
+	GetArticleViews(ctx context.Context, articleID uint) (uint, error)
+	IncrementArticleViews(ctx context.Context, articleID uint) (uint, error)
 }
 
 type articleService struct {
@@ -38,10 +39,10 @@ func NewArticleService(repo repository.ArticleRepository, userRepo repository.Us
 	}
 }
 
-func (s *articleService) CreateArticle(title string, authorID uint) (*models.Article, error) {
+func (s *articleService) CreateArticle(ctx context.Context, title string, authorID uint) (*models.Article, error) {
 	articleSlug := slug.Make(title)
 
-	existing, _ := s.repo.FindBySlug(articleSlug)
+	existing, _ := s.repo.FindBySlug(ctx, articleSlug)
 	if existing != nil {
 		articleSlug = articleSlug + "-" + slug.Make(strings.Split(title, " ")[0])
 	}
@@ -52,15 +53,15 @@ func (s *articleService) CreateArticle(title string, authorID uint) (*models.Art
 		AuthorID: authorID,
 	}
 
-	if err := s.repo.Create(article); err != nil {
+	if err := s.repo.Create(ctx, article); err != nil {
 		return nil, err
 	}
 
-	return s.repo.FindByID(article.ID)
+	return s.repo.FindByID(ctx, article.ID)
 }
 
-func (s *articleService) UpdateArticle(articleID uint, title string, userID uint) (*models.Article, error) {
-	article, err := s.repo.FindByID(articleID)
+func (s *articleService) UpdateArticle(ctx context.Context, articleID uint, title string, userID uint) (*models.Article, error) {
+	article, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrArticleNotFound
@@ -68,7 +69,7 @@ func (s *articleService) UpdateArticle(articleID uint, title string, userID uint
 		return nil, err
 	}
 
-	user, err := s.userRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -82,15 +83,15 @@ func (s *articleService) UpdateArticle(articleID uint, title string, userID uint
 		article.Slug = slug.Make(title)
 	}
 
-	if err := s.repo.Update(article); err != nil {
+	if err := s.repo.Update(ctx, article); err != nil {
 		return nil, err
 	}
 
-	return s.repo.FindByID(article.ID)
+	return s.repo.FindByID(ctx, article.ID)
 }
 
-func (s *articleService) DeleteArticle(articleID uint, userID uint) error {
-	article, err := s.repo.FindByID(articleID)
+func (s *articleService) DeleteArticle(ctx context.Context, articleID uint, userID uint) error {
+	article, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrArticleNotFound
@@ -98,7 +99,7 @@ func (s *articleService) DeleteArticle(articleID uint, userID uint) error {
 		return err
 	}
 
-	user, err := s.userRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -107,11 +108,11 @@ func (s *articleService) DeleteArticle(articleID uint, userID uint) error {
 		return ErrForbidden
 	}
 
-	return s.repo.Delete(article)
+	return s.repo.Delete(ctx, article)
 }
 
-func (s *articleService) GetArticle(articleID uint) (*models.Article, error) {
-	article, err := s.repo.FindByID(articleID)
+func (s *articleService) GetArticle(ctx context.Context, articleID uint) (*models.Article, error) {
+	article, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrArticleNotFound
@@ -121,8 +122,8 @@ func (s *articleService) GetArticle(articleID uint) (*models.Article, error) {
 	return article, nil
 }
 
-func (s *articleService) GetArticleBySlug(slug string) (*models.Article, error) {
-	article, err := s.repo.FindBySlug(slug)
+func (s *articleService) GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error) {
+	article, err := s.repo.FindBySlug(ctx, slug)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrArticleNotFound
@@ -132,7 +133,7 @@ func (s *articleService) GetArticleBySlug(slug string) (*models.Article, error) 
 	return article, nil
 }
 
-func (s *articleService) GetAllArticles(limit, offset int) ([]models.ArticleResponse, error) {
+func (s *articleService) GetAllArticles(ctx context.Context, limit, offset int) ([]models.ArticleResponse, error) {
 	if limit <= 0 || limit > 100 {
 		limit = 20
 	}
@@ -140,7 +141,7 @@ func (s *articleService) GetAllArticles(limit, offset int) ([]models.ArticleResp
 		offset = 0
 	}
 
-	articles, err := s.repo.FindAll(limit, offset)
+	articles, err := s.repo.FindAll(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -153,24 +154,24 @@ func (s *articleService) GetAllArticles(limit, offset int) ([]models.ArticleResp
 	return response, nil
 }
 
-func (s *articleService) GetArticleViews(articleID uint) (uint, error) {
-	_, err := s.repo.FindByID(articleID)
+func (s *articleService) GetArticleViews(ctx context.Context, articleID uint) (uint, error) {
+	_, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, ErrArticleNotFound
 		}
 		return 0, err
 	}
-	return s.repo.GetViews(articleID)
+	return s.repo.GetViews(ctx, articleID)
 }
 
-func (s *articleService) IncrementArticleViews(articleID uint) (uint, error) {
-	_, err := s.repo.FindByID(articleID)
+func (s *articleService) IncrementArticleViews(ctx context.Context, articleID uint) (uint, error) {
+	_, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, ErrArticleNotFound
 		}
 		return 0, err
 	}
-	return s.repo.IncrementViews(articleID)
+	return s.repo.IncrementViews(ctx, articleID)
 }

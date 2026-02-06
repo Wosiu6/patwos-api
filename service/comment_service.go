@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"github.com/Wosiu6/patwos-api/models"
@@ -14,11 +15,11 @@ var (
 )
 
 type CommentService interface {
-	CreateComment(content, articleID string, userID uint) (*models.Comment, error)
-	UpdateComment(commentID uint, content string, userID uint) (*models.Comment, error)
-	DeleteComment(commentID uint, userID uint) error
-	GetComment(commentID uint) (*models.Comment, error)
-	GetCommentsByArticle(articleID string) ([]models.CommentResponse, error)
+	CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error)
+	UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error)
+	DeleteComment(ctx context.Context, commentID uint, userID uint) error
+	GetComment(ctx context.Context, commentID uint) (*models.Comment, error)
+	GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error)
 }
 
 type commentService struct {
@@ -29,22 +30,22 @@ func NewCommentService(repo repository.CommentRepository) CommentService {
 	return &commentService{repo: repo}
 }
 
-func (s *commentService) CreateComment(content, articleID string, userID uint) (*models.Comment, error) {
+func (s *commentService) CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error) {
 	comment := &models.Comment{
 		Content:   content,
 		ArticleID: articleID,
 		UserID:    userID,
 	}
 
-	if err := s.repo.Create(comment); err != nil {
+	if err := s.repo.Create(ctx, comment); err != nil {
 		return nil, err
 	}
 
-	return s.repo.FindByID(comment.ID)
+	return s.repo.FindByID(ctx, comment.ID)
 }
 
-func (s *commentService) UpdateComment(commentID uint, content string, userID uint) (*models.Comment, error) {
-	comment, err := s.repo.FindByID(commentID)
+func (s *commentService) UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error) {
+	comment, err := s.repo.FindByID(ctx, commentID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrCommentNotFound
@@ -57,15 +58,15 @@ func (s *commentService) UpdateComment(commentID uint, content string, userID ui
 	}
 
 	comment.Content = content
-	if err := s.repo.Update(comment); err != nil {
+	if err := s.repo.Update(ctx, comment); err != nil {
 		return nil, err
 	}
 
-	return s.repo.FindByID(comment.ID)
+	return s.repo.FindByID(ctx, comment.ID)
 }
 
-func (s *commentService) DeleteComment(commentID uint, userID uint) error {
-	comment, err := s.repo.FindByID(commentID)
+func (s *commentService) DeleteComment(ctx context.Context, commentID uint, userID uint) error {
+	comment, err := s.repo.FindByID(ctx, commentID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrCommentNotFound
@@ -77,11 +78,11 @@ func (s *commentService) DeleteComment(commentID uint, userID uint) error {
 		return ErrForbidden
 	}
 
-	return s.repo.Delete(comment)
+	return s.repo.Delete(ctx, comment)
 }
 
-func (s *commentService) GetComment(commentID uint) (*models.Comment, error) {
-	comment, err := s.repo.FindByID(commentID)
+func (s *commentService) GetComment(ctx context.Context, commentID uint) (*models.Comment, error) {
+	comment, err := s.repo.FindByID(ctx, commentID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrCommentNotFound
@@ -91,8 +92,8 @@ func (s *commentService) GetComment(commentID uint) (*models.Comment, error) {
 	return comment, nil
 }
 
-func (s *commentService) GetCommentsByArticle(articleID string) ([]models.CommentResponse, error) {
-	comments, err := s.repo.FindByArticleID(articleID)
+func (s *commentService) GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error) {
+	comments, err := s.repo.FindByArticleID(ctx, articleID)
 	if err != nil {
 		return nil, err
 	}

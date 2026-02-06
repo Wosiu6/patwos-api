@@ -49,6 +49,8 @@ func main() {
 
 	router.Use(middleware.SecurityHeaders())
 
+	router.Use(middleware.RequestTimeout(cfg.RequestTimeout))
+
 	router.Use(middleware.BodySizeLimiter(cfg.MaxRequestSize))
 
 	router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))

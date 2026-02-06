@@ -21,6 +21,7 @@ type Config struct {
 	AllowedOrigins  []string
 	TrustedProxies  []string
 	MaxRequestSize  int64
+	RequestTimeout  time.Duration
 	ReadTimeout     time.Duration
 	WriteTimeout    time.Duration
 	IdleTimeout     time.Duration
@@ -50,6 +51,7 @@ func LoadConfig() *Config {
 		AllowedOrigins:  getEnvArray("ALLOWED_ORIGINS", []string{"*"}),
 		TrustedProxies:  getEnvArray("TRUSTED_PROXIES", []string{}),
 		MaxRequestSize:  getEnvInt64("MAX_REQUEST_SIZE", 10485760),
+		RequestTimeout:  getEnvDuration("REQUEST_TIMEOUT", 15*time.Second),
 		ReadTimeout:     getEnvDuration("READ_TIMEOUT", 10*time.Second),
 		WriteTimeout:    getEnvDuration("WRITE_TIMEOUT", 15*time.Second),
 		IdleTimeout:     getEnvDuration("IDLE_TIMEOUT", 120*time.Second),

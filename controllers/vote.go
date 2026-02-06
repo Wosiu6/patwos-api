@@ -30,7 +30,7 @@ func (vc *VoteController) Vote(c *gin.Context) {
 		return
 	}
 
-	if err := vc.service.Vote(req.ArticleID, userID.(uint), req.VoteType); err != nil {
+	if err := vc.service.Vote(c.Request.Context(), req.ArticleID, userID.(uint), req.VoteType); err != nil {
 		if err == service.ErrInvalidVoteType {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vote type. Use 'like' or 'dislike'"})
 			return
@@ -41,7 +41,7 @@ func (vc *VoteController) Vote(c *gin.Context) {
 	}
 
 	uid := userID.(uint)
-	counts, err := vc.service.GetVoteCounts(req.ArticleID, &uid)
+	counts, err := vc.service.GetVoteCounts(c.Request.Context(), req.ArticleID, &uid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
 		return
@@ -67,13 +67,13 @@ func (vc *VoteController) RemoveVote(c *gin.Context) {
 		return
 	}
 
-	if err := vc.service.RemoveVote(uint(articleID), userID.(uint)); err != nil {
+	if err := vc.service.RemoveVote(c.Request.Context(), uint(articleID), userID.(uint)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove vote"})
 		return
 	}
 
 	uid := userID.(uint)
-	counts, err := vc.service.GetVoteCounts(uint(articleID), &uid)
+	counts, err := vc.service.GetVoteCounts(c.Request.Context(), uint(articleID), &uid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
 		return
@@ -99,7 +99,7 @@ func (vc *VoteController) GetVoteCounts(c *gin.Context) {
 		userIDPtr = &uid
 	}
 
-	counts, err := vc.service.GetVoteCounts(uint(articleID), userIDPtr)
+	counts, err := vc.service.GetVoteCounts(c.Request.Context(), uint(articleID), userIDPtr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
 		return

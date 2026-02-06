@@ -1,0 +1,2698 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>authcache: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/Wosiu6/patwos-api/authcache/revoked_token_cache.go (70.8%)</option>
+				
+				<option value="file1">github.com/Wosiu6/patwos-api/config/config.go (55.6%)</option>
+				
+				<option value="file2">github.com/Wosiu6/patwos-api/controllers/article.go (10.5%)</option>
+				
+				<option value="file3">github.com/Wosiu6/patwos-api/controllers/auth.go (43.2%)</option>
+				
+				<option value="file4">github.com/Wosiu6/patwos-api/controllers/comment.go (41.9%)</option>
+				
+				<option value="file5">github.com/Wosiu6/patwos-api/controllers/vote.go (31.5%)</option>
+				
+				<option value="file6">github.com/Wosiu6/patwos-api/database/database.go (0.0%)</option>
+				
+				<option value="file7">github.com/Wosiu6/patwos-api/main.go (0.0%)</option>
+				
+				<option value="file8">github.com/Wosiu6/patwos-api/middleware/admin.go (50.0%)</option>
+				
+				<option value="file9">github.com/Wosiu6/patwos-api/middleware/auth.go (0.0%)</option>
+				
+				<option value="file10">github.com/Wosiu6/patwos-api/middleware/bodylimit.go (71.4%)</option>
+				
+				<option value="file11">github.com/Wosiu6/patwos-api/middleware/cors.go (78.1%)</option>
+				
+				<option value="file12">github.com/Wosiu6/patwos-api/middleware/logger.go (0.0%)</option>
+				
+				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (54.9%)</option>
+				
+				<option value="file14">github.com/Wosiu6/patwos-api/middleware/request_timeout.go (100.0%)</option>
+				
+				<option value="file15">github.com/Wosiu6/patwos-api/middleware/security.go (100.0%)</option>
+				
+				<option value="file16">github.com/Wosiu6/patwos-api/models/article.go (100.0%)</option>
+				
+				<option value="file17">github.com/Wosiu6/patwos-api/models/comment.go (100.0%)</option>
+				
+				<option value="file18">github.com/Wosiu6/patwos-api/models/user.go (91.7%)</option>
+				
+				<option value="file19">github.com/Wosiu6/patwos-api/models/vote.go (100.0%)</option>
+				
+				<option value="file20">github.com/Wosiu6/patwos-api/repository/article_repository.go (0.0%)</option>
+				
+				<option value="file21">github.com/Wosiu6/patwos-api/repository/comment_repository.go (0.0%)</option>
+				
+				<option value="file22">github.com/Wosiu6/patwos-api/repository/user_repository.go (0.0%)</option>
+				
+				<option value="file23">github.com/Wosiu6/patwos-api/repository/vote_repository.go (0.0%)</option>
+				
+				<option value="file24">github.com/Wosiu6/patwos-api/routes/routes.go (100.0%)</option>
+				
+				<option value="file25">github.com/Wosiu6/patwos-api/service/article_service.go (57.7%)</option>
+				
+				<option value="file26">github.com/Wosiu6/patwos-api/service/auth_service.go (38.6%)</option>
+				
+				<option value="file27">github.com/Wosiu6/patwos-api/service/comment_service.go (67.6%)</option>
+				
+				<option value="file28">github.com/Wosiu6/patwos-api/service/vote_service.go (86.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package authcache
+
+import (
+        "sync"
+        "time"
+)
+
+type revokedTokenCache struct {
+        mu     sync.RWMutex
+        tokens map[string]time.Time
+}
+
+var cache = &amp;revokedTokenCache{
+        tokens: make(map[string]time.Time),
+}
+
+func init() <span class="cov8" title="1">{
+        go cache.cleanupLoop(10*time.Minute, time.Minute)
+}</span>
+
+func Add(token string, expiresAt time.Time) <span class="cov8" title="1">{
+        cache.mu.Lock()
+        cache.tokens[token] = expiresAt
+        cache.mu.Unlock()
+}</span>
+
+func IsRevoked(token string) bool <span class="cov8" title="1">{
+        cache.mu.RLock()
+        expiresAt, exists := cache.tokens[token]
+        cache.mu.RUnlock()
+        if !exists </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov8" title="1">if time.Now().After(expiresAt) </span><span class="cov8" title="1">{
+                cache.mu.Lock()
+                delete(cache.tokens, token)
+                cache.mu.Unlock()
+                return false
+        }</span>
+        <span class="cov8" title="1">return true</span>
+}
+
+func (c *revokedTokenCache) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
+        ticker := time.NewTicker(interval)
+        defer ticker.Stop()
+
+        for range ticker.C </span><span class="cov0" title="0">{
+                cutoff := time.Now().Add(-maxAge)
+                c.mu.Lock()
+                for token, exp := range c.tokens </span><span class="cov0" title="0">{
+                        if exp.Before(cutoff) </span><span class="cov0" title="0">{
+                                delete(c.tokens, token)
+                        }</span>
+                }
+                <span class="cov0" title="0">c.mu.Unlock()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package config
+
+import (
+        "log"
+        "os"
+        "strconv"
+        "strings"
+        "time"
+)
+
+type Config struct {
+        DBHost          string
+        DBUser          string
+        DBPassword      string
+        DBName          string
+        DBPort          string
+        DBSSLMode       string
+        JWTSecret       string
+        APIPort         string
+        GinMode         string
+        AllowedOrigins  []string
+        TrustedProxies  []string
+        MaxRequestSize  int64
+        RequestTimeout  time.Duration
+        ReadTimeout     time.Duration
+        WriteTimeout    time.Duration
+        IdleTimeout     time.Duration
+        ShutdownTimeout time.Duration
+}
+
+func LoadConfig() *Config <span class="cov8" title="1">{
+        jwtSecret := os.Getenv("JWT_SECRET")
+        if jwtSecret == "" </span><span class="cov0" title="0">{
+                log.Fatal("JWT_SECRET environment variable is required")
+        }</span>
+        <span class="cov8" title="1">dbPassword := os.Getenv("DB_PASSWORD")
+        if dbPassword == "" </span><span class="cov0" title="0">{
+                log.Fatal("DB_PASSWORD environment variable is required")
+        }</span>
+
+        <span class="cov8" title="1">return &amp;Config{
+                DBHost:          getEnv("DB_HOST", "localhost"),
+                DBUser:          getEnv("DB_USER", "patwos"),
+                DBName:          getEnv("DB_NAME", "patwos_db"),
+                DBPort:          getEnv("DB_PORT", "5432"),
+                DBSSLMode:       getEnv("DB_SSLMODE", "disable"),
+                JWTSecret:       jwtSecret,
+                DBPassword:      dbPassword,
+                APIPort:         getEnv("API_PORT", "8080"),
+                GinMode:         getEnv("GIN_MODE", "debug"),
+                AllowedOrigins:  getEnvArray("ALLOWED_ORIGINS", []string{"*"}),
+                TrustedProxies:  getEnvArray("TRUSTED_PROXIES", []string{}),
+                MaxRequestSize:  getEnvInt64("MAX_REQUEST_SIZE", 10485760),
+                RequestTimeout:  getEnvDuration("REQUEST_TIMEOUT", 15*time.Second),
+                ReadTimeout:     getEnvDuration("READ_TIMEOUT", 10*time.Second),
+                WriteTimeout:    getEnvDuration("WRITE_TIMEOUT", 15*time.Second),
+                IdleTimeout:     getEnvDuration("IDLE_TIMEOUT", 120*time.Second),
+                ShutdownTimeout: getEnvDuration("SHUTDOWN_TIMEOUT", 30*time.Second),
+        }</span>
+}
+
+func getEnv(key, defaultValue string) string <span class="cov8" title="1">{
+        if value := os.Getenv(key); value != "" </span><span class="cov8" title="1">{
+                return value
+        }</span>
+        <span class="cov8" title="1">return defaultValue</span>
+}
+
+func getEnvArray(key string, defaultValue []string) []string <span class="cov8" title="1">{
+        if value := os.Getenv(key); value != "" </span><span class="cov0" title="0">{
+                var result []string
+                for _, v := range strings.Split(value, ",") </span><span class="cov0" title="0">{
+                        trimmed := strings.TrimSpace(v)
+                        if trimmed != "" </span><span class="cov0" title="0">{
+                                result = append(result, trimmed)
+                        }</span>
+                }
+                <span class="cov0" title="0">if len(result) &gt; 0 </span><span class="cov0" title="0">{
+                        return result
+                }</span>
+        }
+        <span class="cov8" title="1">return defaultValue</span>
+}
+
+func getEnvInt64(key string, defaultValue int64) int64 <span class="cov8" title="1">{
+        if value := os.Getenv(key); value != "" </span><span class="cov0" title="0">{
+                if intValue, err := strconv.ParseInt(value, 10, 64); err == nil </span><span class="cov0" title="0">{
+                        return intValue
+                }</span>
+        }
+        <span class="cov8" title="1">return defaultValue</span>
+}
+
+func getEnvDuration(key string, defaultValue time.Duration) time.Duration <span class="cov8" title="1">{
+        if value := os.Getenv(key); value != "" </span><span class="cov8" title="1">{
+                if duration, err := time.ParseDuration(value); err == nil </span><span class="cov8" title="1">{
+                        return duration
+                }</span>
+        }
+        <span class="cov0" title="0">return defaultValue</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package controllers
+
+import (
+        "net/http"
+        "strconv"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/service"
+        "github.com/gin-gonic/gin"
+)
+
+type ArticleController struct {
+        service service.ArticleService
+}
+
+func NewArticleController(articleService service.ArticleService) *ArticleController <span class="cov8" title="1">{
+        return &amp;ArticleController{service: articleService}
+}</span>
+
+func (ac *ArticleController) GetArticles(c *gin.Context) <span class="cov8" title="1">{
+        limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+        offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+
+        articles, err := ac.service.GetAllArticles(c.Request.Context(), limit, offset)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch articles"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">summaries := make([]models.ArticleSummaryResponse, 0, len(articles))
+        for _, article := range articles </span><span class="cov8" title="1">{
+                summaries = append(summaries, models.ArticleSummaryResponse{
+                        ID:        article.ID,
+                        Title:     article.Title,
+                        Slug:      article.Slug,
+                        Author:    article.Author,
+                        CreatedAt: article.CreatedAt,
+                        UpdatedAt: article.UpdatedAt,
+                        Views:     article.Views,
+                })
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{"articles": summaries})</span>
+}
+
+func (ac *ArticleController) GetArticle(c *gin.Context) <span class="cov8" title="1">{
+        id := c.Param("id")
+
+        articleID, err := strconv.ParseUint(id, 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                slug := id
+                article, err := ac.service.GetArticleBySlug(c.Request.Context(), slug)
+                if err != nil </span><span class="cov0" title="0">{
+                        if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                        return</span>
+                }
+                <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"article": article.ToResponse()})
+                return</span>
+        }
+
+        <span class="cov8" title="1">article, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{"article": article.ToResponse()})</span>
+}
+
+func (ac *ArticleController) CreateArticle(c *gin.Context) <span class="cov0" title="0">{
+        userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var req models.CreateArticleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">article, err := ac.service.CreateArticle(c.Request.Context(), req.Title, userID.(uint))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create article"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusCreated, gin.H{"article": article.ToResponse()})</span>
+}
+
+func (ac *ArticleController) UpdateArticle(c *gin.Context) <span class="cov0" title="0">{
+        articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var req models.UpdateArticleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">article, err := ac.service.UpdateArticle(c.Request.Context(), uint(articleID), req.Title, userID.(uint))
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">if err == service.ErrForbidden </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusForbidden, gin.H{"error": "You can only edit your own articles"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update article"})
+                return</span>
+        }
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"article": article.ToResponse()})</span>
+}
+
+func (ac *ArticleController) DeleteArticle(c *gin.Context) <span class="cov0" title="0">{
+        articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = ac.service.DeleteArticle(c.Request.Context(), uint(articleID), userID.(uint))
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">if err == service.ErrForbidden </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own articles"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete article"})
+                return</span>
+        }
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"message": "Article deleted successfully"})</span>
+}
+
+func (ac *ArticleController) GetArticleViews(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+
+        // Try numeric ID first; fallback to slug
+        articleID, err := strconv.ParseUint(id, 10, 32)
+        var article *serviceArticle
+        if err != nil </span><span class="cov0" title="0">{
+                // Treat as slug
+                a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
+                if err != nil </span><span class="cov0" title="0">{
+                        if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                        return</span>
+                }
+                <span class="cov0" title="0">article = &amp;serviceArticle{ID: a.ID}</span>
+        } else<span class="cov0" title="0"> {
+                a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
+                if err != nil </span><span class="cov0" title="0">{
+                        if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                        return</span>
+                }
+                <span class="cov0" title="0">article = &amp;serviceArticle{ID: a.ID}</span>
+        }
+
+        <span class="cov0" title="0">views, err := ac.service.GetArticleViews(c.Request.Context(), article.ID)
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch views"})
+                return</span>
+        }
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"views": views})</span>
+}
+
+func (ac *ArticleController) IncrementArticleViews(c *gin.Context) <span class="cov0" title="0">{
+        id := c.Param("id")
+
+        // Try numeric ID first; fallback to slug
+        articleID, err := strconv.ParseUint(id, 10, 32)
+        var article *serviceArticle
+        if err != nil </span><span class="cov0" title="0">{
+                // Treat as slug
+                a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
+                if err != nil </span><span class="cov0" title="0">{
+                        if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                        return</span>
+                }
+                <span class="cov0" title="0">article = &amp;serviceArticle{ID: a.ID}</span>
+        } else<span class="cov0" title="0"> {
+                a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
+                if err != nil </span><span class="cov0" title="0">{
+                        if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                                return
+                        }</span>
+                        <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+                        return</span>
+                }
+                <span class="cov0" title="0">article = &amp;serviceArticle{ID: a.ID}</span>
+        }
+
+        <span class="cov0" title="0">views, err := ac.service.IncrementArticleViews(c.Request.Context(), article.ID)
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrArticleNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to increment views"})
+                return</span>
+        }
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"views": views})</span>
+}
+
+type serviceArticle struct {
+        ID uint
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package controllers
+
+import (
+        "net/http"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/service"
+        "github.com/gin-gonic/gin"
+)
+
+type AuthController struct {
+        service service.AuthService
+}
+
+func NewAuthController(authService service.AuthService) *AuthController <span class="cov8" title="1">{
+        return &amp;AuthController{service: authService}
+}</span>
+
+func (ac *AuthController) Register(c *gin.Context) <span class="cov8" title="1">{
+        var req models.UserRegisterRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">user, token, err := ac.service.Register(c.Request.Context(), req.Username, req.Email, req.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrUserAlreadyExists </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusConflict, gin.H{"error": "User with this email or username already exists"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusCreated, gin.H{
+                "user":  user.ToResponse(),
+                "token": token,
+        })</span>
+}
+
+func (ac *AuthController) Login(c *gin.Context) <span class="cov8" title="1">{
+        var req models.UserLoginRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">user, token, err := ac.service.Login(c.Request.Context(), req.Email, req.Password)
+        if err != nil </span><span class="cov8" title="1">{
+                if err == service.ErrInvalidCredentials </span><span class="cov8" title="1">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login"})
+                return</span>
+        }
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "user":  user.ToResponse(),
+                "token": token,
+        })</span>
+}
+
+func (ac *AuthController) GetCurrentUser(c *gin.Context) <span class="cov0" title="0">{
+        user, exists := c.Get("user")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">currentUser := user.(models.User)
+        c.JSON(http.StatusOK, gin.H{"user": currentUser.ToResponse()})</span>
+}
+
+func (ac *AuthController) Logout(c *gin.Context) <span class="cov8" title="1">{
+        userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">authHeader := c.GetHeader("Authorization")
+        if authHeader == "" || len(authHeader) &lt; 8 </span><span class="cov8" title="1">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+                return
+        }</span>
+        <span class="cov0" title="0">token := authHeader[7:]
+
+        if err := ac.service.Logout(c.Request.Context(), token, userID.(uint)); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package controllers
+
+import (
+        "net/http"
+        "strconv"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/service"
+        "github.com/gin-gonic/gin"
+)
+
+type CommentController struct {
+        service service.CommentService
+}
+
+func NewCommentController(commentService service.CommentService) *CommentController <span class="cov8" title="1">{
+        return &amp;CommentController{service: commentService}
+}</span>
+
+func (cc *CommentController) GetCommentsByArticle(c *gin.Context) <span class="cov0" title="0">{
+        articleID := c.Param("article_id")
+
+        comments, err := cc.service.GetCommentsByArticle(c.Request.Context(), articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"comments": comments})</span>
+}
+
+func (cc *CommentController) CreateComment(c *gin.Context) <span class="cov8" title="1">{
+        userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">var req models.CreateCommentRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">comment, err := cc.service.CreateComment(c.Request.Context(), req.Content, req.ArticleID, userID.(uint))
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create comment"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusCreated, gin.H{"comment": comment.ToResponse()})</span>
+}
+
+func (cc *CommentController) UpdateComment(c *gin.Context) <span class="cov8" title="1">{
+        commentID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">var req models.UpdateCommentRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov8" title="1">comment, err := cc.service.UpdateComment(c.Request.Context(), uint(commentID), req.Content, userID.(uint))
+        if err != nil </span><span class="cov8" title="1">{
+                if err == service.ErrCommentNotFound </span><span class="cov8" title="1">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">if err == service.ErrForbidden </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusForbidden, gin.H{"error": "You can only edit your own comments"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update comment"})
+                return</span>
+        }
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{"comment": comment.ToResponse()})</span>
+}
+
+func (cc *CommentController) DeleteComment(c *gin.Context) <span class="cov8" title="1">{
+        commentID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">err = cc.service.DeleteComment(c.Request.Context(), uint(commentID), userID.(uint))
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrCommentNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">if err == service.ErrForbidden </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own comments"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete comment"})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})</span>
+}
+
+func (cc *CommentController) GetComment(c *gin.Context) <span class="cov8" title="1">{
+        commentID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">comment, err := cc.service.GetComment(c.Request.Context(), uint(commentID))
+        if err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrCommentNotFound </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
+                        return
+                }</span>
+                <span class="cov0" title="0">c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comment"})
+                return</span>
+        }
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{"comment": comment.ToResponse()})</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package controllers
+
+import (
+        "net/http"
+        "strconv"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/service"
+        "github.com/gin-gonic/gin"
+)
+
+type VoteController struct {
+        service service.VoteService
+}
+
+func NewVoteController(service service.VoteService) *VoteController <span class="cov8" title="1">{
+        return &amp;VoteController{service: service}
+}</span>
+
+func (vc *VoteController) Vote(c *gin.Context) <span class="cov8" title="1">{
+        userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">var req models.VoteRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov8" title="1">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := vc.service.Vote(c.Request.Context(), req.ArticleID, userID.(uint), req.VoteType); err != nil </span><span class="cov0" title="0">{
+                if err == service.ErrInvalidVoteType </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vote type. Use 'like' or 'dislike'"})
+                        return
+                }</span>
+                <span class="cov0" title="0">gin.DefaultWriter.Write([]byte("[VOTE-ERROR] ArticleID: " + strconv.Itoa(int(req.ArticleID)) + " | UserID: " + strconv.Itoa(int(userID.(uint))) + " | Error: " + err.Error() + "\n"))
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process vote", "details": err.Error()})
+                return</span>
+        }
+
+        <span class="cov0" title="0">uid := userID.(uint)
+        counts, err := vc.service.GetVoteCounts(c.Request.Context(), req.ArticleID, &amp;uid)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "message": "Vote recorded successfully",
+                "counts":  counts,
+        })</span>
+}
+
+func (vc *VoteController) RemoveVote(c *gin.Context) <span class="cov8" title="1">{
+        userID, exists := c.Get("user_id")
+        if !exists </span><span class="cov0" title="0">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">articleIDStr := c.Param("article_id")
+        articleID, err := strconv.ParseUint(articleIDStr, 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := vc.service.RemoveVote(c.Request.Context(), uint(articleID), userID.(uint)); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove vote"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">uid := userID.(uint)
+        counts, err := vc.service.GetVoteCounts(c.Request.Context(), uint(articleID), &amp;uid)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.JSON(http.StatusOK, gin.H{
+                "message": "Vote removed successfully",
+                "counts":  counts,
+        })</span>
+}
+
+func (vc *VoteController) GetVoteCounts(c *gin.Context) <span class="cov0" title="0">{
+        articleIDStr := c.Param("article_id")
+        articleID, err := strconv.ParseUint(articleIDStr, 10, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">var userIDPtr *uint
+        if userID, exists := c.Get("user_id"); exists </span><span class="cov0" title="0">{
+                uid := userID.(uint)
+                userIDPtr = &amp;uid
+        }</span>
+
+        <span class="cov0" title="0">counts, err := vc.service.GetVoteCounts(c.Request.Context(), uint(articleID), userIDPtr)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get vote counts"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, counts)</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package database
+
+import (
+        "fmt"
+
+        "github.com/Wosiu6/patwos-api/config"
+        "github.com/Wosiu6/patwos-api/models"
+        "gorm.io/driver/postgres"
+        "gorm.io/gorm"
+)
+
+func Connect(cfg *config.Config) (*gorm.DB, error) <span class="cov0" title="0">{
+        dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC",
+                cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.DBSSLMode)
+
+        db, err := gorm.Open(postgres.Open(dsn), &amp;gorm.Config{})
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return db, nil</span>
+}
+
+func Migrate(db *gorm.DB) error <span class="cov0" title="0">{
+        db.Exec("DELETE FROM article_votes v WHERE NOT EXISTS (SELECT 1 FROM articles a WHERE a.id = v.article_id)")
+        db.Exec("DELETE FROM article_votes v WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = v.user_id)")
+
+        return db.AutoMigrate(
+                &amp;models.User{},
+                &amp;models.Article{},
+                &amp;models.Comment{},
+                &amp;models.ArticleVote{},
+                &amp;models.RevokedToken{},
+        )
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "context"
+        "log"
+        "net/http"
+        "os"
+        "os/signal"
+        "syscall"
+
+        "github.com/Wosiu6/patwos-api/config"
+        "github.com/Wosiu6/patwos-api/database"
+        "github.com/Wosiu6/patwos-api/middleware"
+        "github.com/Wosiu6/patwos-api/routes"
+        "github.com/gin-gonic/gin"
+        "github.com/joho/godotenv"
+        "golang.org/x/time/rate"
+)
+
+func main() <span class="cov0" title="0">{
+        if err := godotenv.Load(); err != nil </span><span class="cov0" title="0">{
+                log.Println("No .env file found, using environment variables")
+        }</span>
+
+        <span class="cov0" title="0">cfg := config.LoadConfig()
+
+        log.Printf("[DATABASE] Connecting to %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
+        db, err := database.Connect(cfg)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("[ERROR] Failed to connect to database: %v", err)
+        }</span>
+        <span class="cov0" title="0">log.Printf("[DATABASE] Connected successfully")
+
+        log.Printf("[DATABASE] Running migrations...")
+        if err := database.Migrate(db); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("[ERROR] Failed to run migrations: %v", err)
+        }</span>
+        <span class="cov0" title="0">log.Printf("[DATABASE] Migrations completed")
+
+        gin.SetMode(cfg.GinMode)
+
+        router := gin.New()
+
+        router.Use(gin.Recovery())
+
+        router.Use(gin.Logger())
+
+        router.Use(middleware.RequestLogger())
+
+        router.Use(middleware.SecurityHeaders())
+
+        router.Use(middleware.RequestTimeout(cfg.RequestTimeout))
+
+        router.Use(middleware.BodySizeLimiter(cfg.MaxRequestSize))
+
+        router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))
+
+        router.Use(middleware.CORSMiddleware(cfg.AllowedOrigins))
+
+        if len(cfg.TrustedProxies) &gt; 0 </span><span class="cov0" title="0">{
+                if err := router.SetTrustedProxies(cfg.TrustedProxies); err != nil </span><span class="cov0" title="0">{
+                        log.Printf("Warning: Failed to set trusted proxies: %v", err)
+                }</span>
+        }
+
+        <span class="cov0" title="0">router.MaxMultipartMemory = cfg.MaxRequestSize
+
+        routes.SetupRoutes(router, db, cfg)
+
+        port := cfg.APIPort
+
+        log.Printf("[STARTUP] Configuration loaded:")
+        log.Printf("  - Database: %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
+        log.Printf("  - Port: %s", port)
+        log.Printf("  - Mode: %s", cfg.GinMode)
+        log.Printf("  - CORS Origins: %v", cfg.AllowedOrigins)
+        log.Printf("  - Rate Limit: 100 req/s, burst: 200")
+        if cfg.GinMode == "release" &amp;&amp; cfg.DBSSLMode == "disable" </span><span class="cov0" title="0">{
+                log.Printf("[WARNING] DB_SSLMODE is disable in release mode; enable TLS for production.")
+        }</span>
+
+        <span class="cov0" title="0">server := &amp;http.Server{
+                Addr:         ":" + port,
+                Handler:      router,
+                ReadTimeout:  cfg.ReadTimeout,
+                WriteTimeout: cfg.WriteTimeout,
+                IdleTimeout:  cfg.IdleTimeout,
+        }
+
+        log.Printf("[STARTUP] Starting server on port %s", port)
+        log.Printf("[STARTUP] API ready - Health: http://localhost:%s/health", port)
+
+        go func() </span><span class="cov0" title="0">{
+                if err := server.ListenAndServe(); err != nil &amp;&amp; err != http.ErrServerClosed </span><span class="cov0" title="0">{
+                        log.Fatalf("[ERROR] Failed to start server: %v", err)
+                }</span>
+        }()
+
+        <span class="cov0" title="0">quit := make(chan os.Signal, 1)
+        signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+        &lt;-quit
+
+        log.Printf("[SHUTDOWN] Shutting down server...")
+        ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+        defer cancel()
+
+        if err := server.Shutdown(ctx); err != nil </span><span class="cov0" title="0">{
+                log.Printf("[ERROR] Server shutdown failed: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">log.Printf("[SHUTDOWN] Server exited")</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package middleware
+
+import (
+        "net/http"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/gin-gonic/gin"
+        "gorm.io/gorm"
+)
+
+func AdminMiddleware(db *gorm.DB) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                userRole, exists := c.Get("user_role")
+                if !exists </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov8" title="1">role, ok := userRole.(models.UserRole)
+                if !ok || role != models.UserRoleAdmin </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusForbidden, gin.H{"error": "unauthorized"})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov8" title="1">c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package middleware
+
+import (
+        "errors"
+        "net/http"
+        "strings"
+        "time"
+
+        "github.com/Wosiu6/patwos-api/authcache"
+        "github.com/Wosiu6/patwos-api/config"
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/gin-gonic/gin"
+        "github.com/golang-jwt/jwt/v5"
+        "gorm.io/gorm"
+)
+
+type ErrorMessage string
+
+const (
+        ErrUnauthorized   ErrorMessage = "unauthorized"
+        ErrTokenExpired   ErrorMessage = "token_expired"
+        ErrTokenRevoked   ErrorMessage = "token_revoked"
+        ErrTokenInvalid   ErrorMessage = "token_invalid"
+        ErrSessionExpired ErrorMessage = "session_expired"
+)
+
+func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc <span class="cov0" title="0">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                authHeader := c.GetHeader("Authorization")
+                if authHeader == "" </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+                if tokenString == authHeader </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">if authcache.IsRevoked(tokenString) </span><span class="cov0" title="0">{
+                        gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token (cache) | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   string(ErrTokenRevoked),
+                                "message": "Your session has been logged out. Please log in again.",
+                                "code":    "TOKEN_REVOKED",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">ctx := c.Request.Context()
+                var revokedToken models.RevokedToken
+                if err := db.WithContext(ctx).Where("token = ? AND expires_at &gt; ?", tokenString, time.Now()).First(&amp;revokedToken).Error; err == nil </span><span class="cov0" title="0">{
+                        authcache.Add(tokenString, revokedToken.ExpiresAt)
+                        gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   string(ErrTokenRevoked),
+                                "message": "Your session has been logged out. Please log in again.",
+                                "code":    "TOKEN_REVOKED",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
+                token, err := parser.Parse(tokenString, func(token *jwt.Token) (any, error) </span><span class="cov0" title="0">{
+                        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok </span><span class="cov0" title="0">{
+                                return nil, jwt.ErrSignatureInvalid
+                        }</span>
+                        <span class="cov0" title="0">return []byte(cfg.JWTSecret), nil</span>
+                })
+
+                <span class="cov0" title="0">if err != nil || token == nil || !token.Valid </span><span class="cov0" title="0">{
+                        gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Invalid token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Error: " + func() string </span><span class="cov0" title="0">{
+                                if err != nil </span><span class="cov0" title="0">{
+                                        return err.Error()
+                                }</span>
+                                <span class="cov0" title="0">return "invalid"</span>
+                        }() + " | Status: 401\n"))
+
+                        <span class="cov0" title="0">if errors.Is(err, jwt.ErrTokenExpired) </span><span class="cov0" title="0">{
+                                c.JSON(http.StatusUnauthorized, gin.H{
+                                        "error":   string(ErrTokenExpired),
+                                        "message": "Your session has expired. Please log in again.",
+                                        "code":    "TOKEN_EXPIRED",
+                                })
+                        }</span> else<span class="cov0" title="0"> {
+                                c.JSON(http.StatusUnauthorized, gin.H{
+                                        "error":   string(ErrTokenInvalid),
+                                        "message": "Invalid authentication token. Please log in again.",
+                                        "code":    "TOKEN_INVALID",
+                                })
+                        }</span>
+                        <span class="cov0" title="0">c.Abort()
+                        return</span>
+                }
+
+                <span class="cov0" title="0">claims, ok := token.Claims.(jwt.MapClaims)
+                if !ok </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userID, ok := claims["user_id"].(float64)
+                if !ok </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userState, ok := claims["state"].(float64)
+                if !ok || userState != float64(models.UserStatusActive) </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userRole, ok := claims["role"].(float64)
+                if !ok </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">var user models.User
+                if err := db.WithContext(ctx).First(&amp;user, uint(userID)).Error; err != nil </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": ErrUnauthorized})
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">c.Set("user", user)
+                c.Set("user_id", user.ID)
+                c.Set("user_role", models.UserRole(userRole))
+                c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package middleware
+
+import (
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+)
+
+func BodySizeLimiter(maxSize int64) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                if c.Request.ContentLength &gt; maxSize </span><span class="cov8" title="1">{
+                        c.JSON(http.StatusRequestEntityTooLarge, gin.H{
+                                "error": "Request body too large",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxSize)
+                c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package middleware
+
+import (
+        "fmt"
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+)
+
+func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                origin := c.Request.Header.Get("Origin")
+
+                if origin == "" </span><span class="cov0" title="0">{
+                        c.Next()
+                        return
+                }</span>
+
+                <span class="cov8" title="1">allowed := false
+                allowedOrigin := ""
+                if len(allowedOrigins) &gt; 0 </span><span class="cov8" title="1">{
+                        for _, ao := range allowedOrigins </span><span class="cov8" title="1">{
+                                if ao == "*" </span><span class="cov0" title="0">{
+                                        allowed = true
+                                        allowedOrigin = "*"
+                                        break</span>
+                                } else<span class="cov8" title="1"> if ao == origin </span><span class="cov8" title="1">{
+                                        allowed = true
+                                        allowedOrigin = origin
+                                        break</span>
+                                }
+                        }
+                }
+
+                <span class="cov8" title="1">if !allowed </span><span class="cov8" title="1">{
+                        gin.DefaultWriter.Write([]byte("[CORS-BLOCKED] Origin: " + origin + " | Path: " + c.Request.URL.Path + " | AllowedOrigins: " + fmt.Sprint(allowedOrigins) + " | Status: 403\n"))
+                        c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+                                "error": "Origin not allowed",
+                        })
+                        return
+                }</span>
+
+                <span class="cov8" title="1">c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+                if allowedOrigin != "*" </span><span class="cov8" title="1">{
+                        c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+                }</span>
+                <span class="cov8" title="1">c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization, accept, origin, Cache-Control, X-Requested-With")
+                c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+                c.Writer.Header().Set("Access-Control-Max-Age", "86400")
+                c.Writer.Header().Set("Vary", "Origin")
+
+                if c.Request.Method == "OPTIONS" </span><span class="cov0" title="0">{
+                        c.AbortWithStatus(http.StatusNoContent)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package middleware
+
+import (
+        "net/http"
+        "time"
+
+        "github.com/gin-gonic/gin"
+)
+
+func RequestLogger() gin.HandlerFunc <span class="cov0" title="0">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                start := time.Now()
+                path := c.Request.URL.Path
+                query := c.Request.URL.RawQuery
+
+                c.Next()
+
+                latency := time.Since(start)
+                status := c.Writer.Status()
+                method := c.Request.Method
+                ip := c.ClientIP()
+
+                if query != "" </span><span class="cov0" title="0">{
+                        path = path + "?" + query
+                }</span>
+
+                <span class="cov0" title="0">if status &gt;= 400 </span><span class="cov0" title="0">{
+                        gin.DefaultWriter.Write([]byte(
+                                "[REQUEST] " +
+                                        method + " " +
+                                        path +
+                                        " | Status: " + http.StatusText(status) +
+                                        " | IP: " + ip +
+                                        " | Latency: " + latency.String() +
+                                        "\n",
+                        ))
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package middleware
+
+import (
+        "net/http"
+        "sync"
+        "time"
+
+        "github.com/gin-gonic/gin"
+        "golang.org/x/time/rate"
+)
+
+type IPRateLimiter struct {
+        ips      map[string]*rate.Limiter
+        lastSeen map[string]time.Time
+        mu       *sync.RWMutex
+        r        rate.Limit
+        b        int
+}
+
+func NewIPRateLimiter(r rate.Limit, b int) *IPRateLimiter <span class="cov8" title="1">{
+        limiter := &amp;IPRateLimiter{
+                ips:      make(map[string]*rate.Limiter),
+                lastSeen: make(map[string]time.Time),
+                mu:       &amp;sync.RWMutex{},
+                r:        r,
+                b:        b,
+        }
+        go limiter.cleanupLoop(10*time.Minute, time.Hour)
+        return limiter
+}</span>
+
+func (i *IPRateLimiter) AddIP(ip string) *rate.Limiter <span class="cov8" title="1">{
+        i.mu.Lock()
+        defer i.mu.Unlock()
+
+        limiter := rate.NewLimiter(i.r, i.b)
+        i.ips[ip] = limiter
+        i.lastSeen[ip] = time.Now()
+
+        return limiter
+}</span>
+
+func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter <span class="cov8" title="1">{
+        i.mu.Lock()
+        limiter, exists := i.ips[ip]
+
+        if !exists </span><span class="cov8" title="1">{
+                i.mu.Unlock()
+                return i.AddIP(ip)
+        }</span>
+        <span class="cov0" title="0">i.lastSeen[ip] = time.Now()
+        i.mu.Unlock()
+        return limiter</span>
+}
+
+func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
+        ticker := time.NewTicker(interval)
+        defer ticker.Stop()
+
+        for range ticker.C </span><span class="cov0" title="0">{
+                cutoff := time.Now().Add(-maxAge)
+                i.mu.Lock()
+                for ip, last := range i.lastSeen </span><span class="cov0" title="0">{
+                        if last.Before(cutoff) </span><span class="cov0" title="0">{
+                                delete(i.lastSeen, ip)
+                                delete(i.ips, ip)
+                        }</span>
+                }
+                <span class="cov0" title="0">i.mu.Unlock()</span>
+        }
+}
+
+func RateLimitMiddleware(rateLimit rate.Limit, burstSize int) gin.HandlerFunc <span class="cov8" title="1">{
+        limiter := NewIPRateLimiter(rateLimit, burstSize)
+
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                ip := c.ClientIP()
+                limiter := limiter.GetLimiter(ip)
+
+                if !limiter.Allow() </span><span class="cov8" title="1">{
+                        c.Writer.Header().Set("X-RateLimit-Limit", "100")
+                        c.Writer.Header().Set("X-RateLimit-Remaining", "0")
+                        c.JSON(http.StatusTooManyRequests, gin.H{
+                                "error": "Rate limit exceeded. Please try again later.",
+                        })
+                        gin.DefaultWriter.Write([]byte("[RATE-LIMIT] IP: " + ip + " | Path: " + c.Request.URL.Path + " | Method: " + c.Request.Method + " | Status: 429\n"))
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">c.Next()</span>
+        }
+}
+
+func StrictRateLimitMiddleware() gin.HandlerFunc <span class="cov0" title="0">{
+        limiter := NewIPRateLimiter(rate.Every(time.Minute), 5)
+
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                ip := c.ClientIP()
+                limiter := limiter.GetLimiter(ip)
+
+                if !limiter.Allow() </span><span class="cov0" title="0">{
+                        c.Writer.Header().Set("X-RateLimit-Limit", "5")
+                        c.Writer.Header().Set("X-RateLimit-Remaining", "0")
+                        c.JSON(http.StatusTooManyRequests, gin.H{
+                                "error": "Too many attempts. Please try again later.",
+                        })
+                        gin.DefaultWriter.Write([]byte("[STRICT-RATE-LIMIT] IP: " + ip + " | Path: " + c.Request.URL.Path + " | Status: 429\n"))
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package middleware
+
+import (
+        "context"
+        "time"
+
+        "github.com/gin-gonic/gin"
+)
+
+func RequestTimeout(timeout time.Duration) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+                defer cancel()
+
+                c.Request = c.Request.WithContext(ctx)
+                c.Next()
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package middleware
+
+import (
+        "github.com/gin-gonic/gin"
+)
+
+func SecurityHeaders() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                c.Header("X-Frame-Options", "DENY")
+                c.Header("X-Content-Type-Options", "nosniff")
+                c.Header("X-XSS-Protection", "1; mode=block")
+                c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+                c.Header("Content-Security-Policy", "default-src 'self'")
+                c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+                c.Header("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+
+                c.Next()
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package models
+
+import (
+        "time"
+
+        "gorm.io/gorm"
+)
+
+type Article struct {
+        ID        uint           `gorm:"primarykey" json:"id"`
+        CreatedAt time.Time      `json:"created_at"`
+        UpdatedAt time.Time      `json:"updated_at"`
+        DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+        Title     string         `gorm:"not null;index" json:"title" binding:"required,min=3,max=200"`
+        Slug      string         `gorm:"uniqueIndex;not null" json:"slug"`
+        AuthorID  uint           `gorm:"not null;index" json:"author_id"`
+        Author    User           `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
+        Comments  []Comment      `gorm:"foreignKey:ArticleID" json:"comments,omitempty"`
+        Votes     []ArticleVote  `gorm:"foreignKey:ArticleID" json:"votes,omitempty"`
+        Views     uint           `gorm:"not null;default:0" json:"views"`
+}
+
+type CreateArticleRequest struct {
+        Title string `json:"title" binding:"required,min=3,max=200"`
+}
+
+type UpdateArticleRequest struct {
+        Title string `json:"title" binding:"omitempty,min=3,max=200"`
+}
+
+type ArticleResponse struct {
+        ID        uint         `json:"id"`
+        Title     string       `json:"title"`
+        Slug      string       `json:"slug"`
+        Author    UserResponse `json:"author"`
+        CreatedAt time.Time    `json:"created_at"`
+        UpdatedAt time.Time    `json:"updated_at"`
+        Views     uint         `json:"views"`
+}
+
+type ArticleSummaryResponse struct {
+        ID        uint         `json:"id"`
+        Title     string       `json:"title"`
+        Slug      string       `json:"slug"`
+        Author    UserResponse `json:"author"`
+        CreatedAt time.Time    `json:"created_at"`
+        UpdatedAt time.Time    `json:"updated_at"`
+        Views     uint         `json:"views"`
+}
+
+func (a *Article) ToResponse() ArticleResponse <span class="cov8" title="1">{
+        return ArticleResponse{
+                ID:        a.ID,
+                Title:     a.Title,
+                Slug:      a.Slug,
+                Author:    a.Author.ToResponse(),
+                CreatedAt: a.CreatedAt,
+                UpdatedAt: a.UpdatedAt,
+                Views:     a.Views,
+        }
+}</span>
+
+func (a *Article) ToSummaryResponse() ArticleSummaryResponse <span class="cov8" title="1">{
+        return ArticleSummaryResponse{
+                ID:        a.ID,
+                Title:     a.Title,
+                Slug:      a.Slug,
+                Author:    a.Author.ToResponse(),
+                CreatedAt: a.CreatedAt,
+                UpdatedAt: a.UpdatedAt,
+                Views:     a.Views,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package models
+
+import (
+        "time"
+
+        "gorm.io/gorm"
+)
+
+type Comment struct {
+        ID        uint           `gorm:"primarykey" json:"id"`
+        CreatedAt time.Time      `json:"created_at"`
+        UpdatedAt time.Time      `json:"updated_at"`
+        DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+        Content   string         `gorm:"type:text;not null" json:"content" binding:"required,min=1,max=5000"`
+        ArticleID string         `gorm:"not null;index" json:"article_id" binding:"required"`
+        UserID    uint           `gorm:"not null;index" json:"user_id"`
+        User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"`
+}
+
+type CreateCommentRequest struct {
+        Content   string `json:"content" binding:"required,min=1,max=5000"`
+        ArticleID string `json:"article_id" binding:"required"`
+}
+
+type UpdateCommentRequest struct {
+        Content string `json:"content" binding:"required,min=1,max=5000"`
+}
+
+type CommentResponse struct {
+        ID        uint         `json:"id"`
+        Content   string       `json:"content"`
+        ArticleID string       `json:"article_id"`
+        UserID    uint         `json:"user_id"`
+        User      UserResponse `json:"user"`
+        CreatedAt time.Time    `json:"created_at"`
+        UpdatedAt time.Time    `json:"updated_at"`
+}
+
+func (c *Comment) ToResponse() CommentResponse <span class="cov8" title="1">{
+        return CommentResponse{
+                ID:        c.ID,
+                Content:   c.Content,
+                ArticleID: c.ArticleID,
+                UserID:    c.UserID,
+                User:      c.User.ToResponse(),
+                CreatedAt: c.CreatedAt,
+                UpdatedAt: c.UpdatedAt,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package models
+
+import (
+        "time"
+
+        "golang.org/x/crypto/bcrypt"
+        "gorm.io/gorm"
+)
+
+type User struct {
+        ID        uint           `gorm:"primarykey" json:"id"`
+        CreatedAt time.Time      `json:"created_at"`
+        UpdatedAt time.Time      `json:"updated_at"`
+        DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+        State     UserState      `gorm:"not null;default:0" json:"state"`
+        Role      UserRole       `gorm:"not null;default:0" json:"role"`
+        Username  string         `gorm:"uniqueIndex;not null" json:"username" binding:"required,min=3,max=50"`
+        Email     string         `gorm:"uniqueIndex;not null" json:"email" binding:"required,email"`
+        Password  string         `gorm:"not null" json:"-"`
+        Comments  []Comment      `gorm:"foreignKey:UserID" json:"comments,omitempty"`
+}
+
+type UserState int
+
+const (
+        UserStatusActive UserState = iota
+        UserStatusInactive
+        UserStatusDeleted
+)
+
+type UserRole int
+
+const (
+        UserRoleUser UserRole = iota
+        UserRoleAdmin
+)
+
+type UserRegisterRequest struct {
+        Username string `json:"username" binding:"required,min=3,max=50"`
+        Email    string `json:"email" binding:"required,email"`
+        Password string `json:"password" binding:"required,min=6"`
+}
+
+type UserLoginRequest struct {
+        Email    string `json:"email" binding:"required,email"`
+        Password string `json:"password" binding:"required"`
+}
+
+type UserResponse struct {
+        ID        uint      `json:"id"`
+        Username  string    `json:"username"`
+        Email     string    `json:"email"`
+        Role      string    `json:"role"`
+        CreatedAt time.Time `json:"created_at"`
+}
+
+func (u *User) HashPassword(password string) error <span class="cov8" title="1">{
+        hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">u.Password = string(hashedPassword)
+        return nil</span>
+}
+
+func (u *User) CheckPassword(password string) bool <span class="cov8" title="1">{
+        err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+        return err == nil
+}</span>
+
+func (u *User) ToResponse() UserResponse <span class="cov8" title="1">{
+        role := "user"
+        if u.Role == UserRoleAdmin </span><span class="cov8" title="1">{
+                role = "admin"
+        }</span>
+        <span class="cov8" title="1">return UserResponse{
+                ID:        u.ID,
+                Username:  u.Username,
+                Email:     u.Email,
+                Role:      role,
+                CreatedAt: u.CreatedAt,
+        }</span>
+}
+
+func (u *User) IsAdmin() bool <span class="cov8" title="1">{
+        return u.Role == UserRoleAdmin
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package models
+
+import (
+        "time"
+
+        "gorm.io/gorm"
+)
+
+type VoteType string
+
+const (
+        VoteLike    VoteType = "like"
+        VoteDislike VoteType = "dislike"
+)
+
+type ArticleVote struct {
+        ID        uint           `gorm:"primarykey" json:"id"`
+        CreatedAt time.Time      `json:"created_at"`
+        UpdatedAt time.Time      `json:"updated_at"`
+        DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+        ArticleID uint           `gorm:"not null;index:idx_article_user,unique" json:"article_id"`
+        UserID    uint           `gorm:"not null;index:idx_article_user,unique" json:"user_id"`
+        VoteType  VoteType       `gorm:"type:varchar(10);not null" json:"vote_type"`
+        User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"`
+        Article   Article        `gorm:"foreignKey:ArticleID" json:"article,omitempty"`
+}
+
+type VoteRequest struct {
+        ArticleID uint     `json:"article_id" binding:"required"`
+        VoteType  VoteType `json:"vote_type" binding:"required,oneof=like dislike"`
+}
+
+type VoteCounts struct {
+        ArticleID    uint   `json:"article_id"`
+        Likes        int64  `json:"likes"`
+        Dislikes     int64  `json:"dislikes"`
+        UserVote     string `json:"user_vote,omitempty"`
+        UserHasVoted bool   `json:"user_has_voted"`
+}
+
+func (ArticleVote) TableName() string <span class="cov8" title="1">{
+        return "article_votes"
+}</span>
+
+func (v VoteType) IsValid() bool <span class="cov8" title="1">{
+        return v == VoteLike || v == VoteDislike
+}</span>
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "gorm.io/gorm"
+)
+
+type ArticleRepository interface {
+        Create(ctx context.Context, article *models.Article) error
+        Update(ctx context.Context, article *models.Article) error
+        Delete(ctx context.Context, article *models.Article) error
+        FindByID(ctx context.Context, id uint) (*models.Article, error)
+        FindBySlug(ctx context.Context, slug string) (*models.Article, error)
+        FindAll(ctx context.Context, limit, offset int) ([]models.Article, error)
+        GetViews(ctx context.Context, id uint) (uint, error)
+        IncrementViews(ctx context.Context, id uint) (uint, error)
+}
+
+type articleRepository struct {
+        db *gorm.DB
+}
+
+func NewArticleRepository(db *gorm.DB) ArticleRepository <span class="cov0" title="0">{
+        return &amp;articleRepository{db: db}
+}</span>
+
+func (r *articleRepository) Create(ctx context.Context, article *models.Article) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Create(article).Error
+}</span>
+
+func (r *articleRepository) Update(ctx context.Context, article *models.Article) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Save(article).Error
+}</span>
+
+func (r *articleRepository) Delete(ctx context.Context, article *models.Article) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Delete(article).Error
+}</span>
+
+func (r *articleRepository) FindByID(ctx context.Context, id uint) (*models.Article, error) <span class="cov0" title="0">{
+        var article models.Article
+        err := r.db.WithContext(ctx).Preload("Author").First(&amp;article, id).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;article, nil</span>
+}
+
+func (r *articleRepository) FindBySlug(ctx context.Context, slug string) (*models.Article, error) <span class="cov0" title="0">{
+        var article models.Article
+        err := r.db.WithContext(ctx).Preload("Author").Where("slug = ?", slug).First(&amp;article).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;article, nil</span>
+}
+
+func (r *articleRepository) FindAll(ctx context.Context, limit, offset int) ([]models.Article, error) <span class="cov0" title="0">{
+        var articles []models.Article
+        err := r.db.WithContext(ctx).Preload("Author").
+                Order("created_at DESC").
+                Limit(limit).
+                Offset(offset).
+                Find(&amp;articles).Error
+        return articles, err
+}</span>
+
+func (r *articleRepository) GetViews(ctx context.Context, id uint) (uint, error) <span class="cov0" title="0">{
+        var views uint
+        err := r.db.WithContext(ctx).Model(&amp;models.Article{}).Select("views").Where("id = ?", id).Scan(&amp;views).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov0" title="0">return views, nil</span>
+}
+
+func (r *articleRepository) IncrementViews(ctx context.Context, id uint) (uint, error) <span class="cov0" title="0">{
+        if err := r.db.WithContext(ctx).Model(&amp;models.Article{}).
+                Where("id = ?", id).
+                UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov0" title="0">return r.GetViews(ctx, id)</span>
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "gorm.io/gorm"
+)
+
+type CommentRepository interface {
+        Create(ctx context.Context, comment *models.Comment) error
+        Update(ctx context.Context, comment *models.Comment) error
+        Delete(ctx context.Context, comment *models.Comment) error
+        FindByID(ctx context.Context, id uint) (*models.Comment, error)
+        FindByArticleID(ctx context.Context, articleID string) ([]models.Comment, error)
+}
+
+type commentRepository struct {
+        db *gorm.DB
+}
+
+func NewCommentRepository(db *gorm.DB) CommentRepository <span class="cov0" title="0">{
+        return &amp;commentRepository{db: db}
+}</span>
+
+func (r *commentRepository) Create(ctx context.Context, comment *models.Comment) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Create(comment).Error
+}</span>
+
+func (r *commentRepository) Update(ctx context.Context, comment *models.Comment) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Save(comment).Error
+}</span>
+
+func (r *commentRepository) Delete(ctx context.Context, comment *models.Comment) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Delete(comment).Error
+}</span>
+
+func (r *commentRepository) FindByID(ctx context.Context, id uint) (*models.Comment, error) <span class="cov0" title="0">{
+        var comment models.Comment
+        err := r.db.WithContext(ctx).Preload("User").First(&amp;comment, id).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;comment, nil</span>
+}
+
+func (r *commentRepository) FindByArticleID(ctx context.Context, articleID string) ([]models.Comment, error) <span class="cov0" title="0">{
+        var comments []models.Comment
+        err := r.db.WithContext(ctx).Preload("User").
+                Where("article_id = ?", articleID).
+                Order("created_at DESC").
+                Find(&amp;comments).Error
+        return comments, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "gorm.io/gorm"
+)
+
+type UserRepository interface {
+        Create(ctx context.Context, user *models.User) error
+        FindByEmail(ctx context.Context, email string) (*models.User, error)
+        FindByID(ctx context.Context, id uint) (*models.User, error)
+        FindByUsername(ctx context.Context, username string) (*models.User, error)
+        ExistsByEmailOrUsername(ctx context.Context, email, username string) (bool, error)
+}
+
+type userRepository struct {
+        db *gorm.DB
+}
+
+func NewUserRepository(db *gorm.DB) UserRepository <span class="cov0" title="0">{
+        return &amp;userRepository{db: db}
+}</span>
+
+func (r *userRepository) Create(ctx context.Context, user *models.User) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Create(user).Error
+}</span>
+
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) <span class="cov0" title="0">{
+        var user models.User
+        err := r.db.WithContext(ctx).Where("email = ?", email).First(&amp;user).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;user, nil</span>
+}
+
+func (r *userRepository) FindByID(ctx context.Context, id uint) (*models.User, error) <span class="cov0" title="0">{
+        var user models.User
+        err := r.db.WithContext(ctx).First(&amp;user, id).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;user, nil</span>
+}
+
+func (r *userRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) <span class="cov0" title="0">{
+        var user models.User
+        err := r.db.WithContext(ctx).Where("username = ?", username).First(&amp;user).Error
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return &amp;user, nil</span>
+}
+
+func (r *userRepository) ExistsByEmailOrUsername(ctx context.Context, email, username string) (bool, error) <span class="cov0" title="0">{
+        var count int64
+        err := r.db.WithContext(ctx).Model(&amp;models.User{}).
+                Where("email = ? OR username = ?", email, username).
+                Count(&amp;count).Error
+        return count &gt; 0, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package repository
+
+import (
+        "context"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "gorm.io/gorm"
+)
+
+type VoteRepository interface {
+        Create(ctx context.Context, vote *models.ArticleVote) error
+        Update(ctx context.Context, vote *models.ArticleVote) error
+        Delete(ctx context.Context, articleID uint, userID uint) error
+        FindByArticleAndUser(ctx context.Context, articleID uint, userID uint) (*models.ArticleVote, error)
+        CountByArticleAndType(ctx context.Context, articleID uint, voteType models.VoteType) (int64, error)
+        GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error)
+}
+
+type voteRepository struct {
+        db *gorm.DB
+}
+
+func NewVoteRepository(db *gorm.DB) VoteRepository <span class="cov0" title="0">{
+        return &amp;voteRepository{db: db}
+}</span>
+
+func (r *voteRepository) Create(ctx context.Context, vote *models.ArticleVote) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Create(vote).Error
+}</span>
+
+func (r *voteRepository) Update(ctx context.Context, vote *models.ArticleVote) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Save(vote).Error
+}</span>
+
+func (r *voteRepository) Delete(ctx context.Context, articleID uint, userID uint) error <span class="cov0" title="0">{
+        return r.db.WithContext(ctx).Where("article_id = ? AND user_id = ?", articleID, userID).
+                Delete(&amp;models.ArticleVote{}).Error
+}</span>
+
+func (r *voteRepository) FindByArticleAndUser(ctx context.Context, articleID uint, userID uint) (*models.ArticleVote, error) <span class="cov0" title="0">{
+        var vote models.ArticleVote
+        err := r.db.WithContext(ctx).Where("article_id = ? AND user_id = ?", articleID, userID).
+                First(&amp;vote).Error
+
+        if err == gorm.ErrRecordNotFound </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov0" title="0">return &amp;vote, err</span>
+}
+
+func (r *voteRepository) CountByArticleAndType(ctx context.Context, articleID uint, voteType models.VoteType) (int64, error) <span class="cov0" title="0">{
+        var count int64
+        err := r.db.WithContext(ctx).Model(&amp;models.ArticleVote{}).
+                Where("article_id = ? AND vote_type = ?", articleID, voteType).
+                Count(&amp;count).Error
+        return count, err
+}</span>
+
+func (r *voteRepository) GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error) <span class="cov0" title="0">{
+        counts := &amp;models.VoteCounts{
+                ArticleID: articleID,
+        }
+
+        likes, err := r.CountByArticleAndType(ctx, articleID, models.VoteLike)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">counts.Likes = likes
+
+        dislikes, err := r.CountByArticleAndType(ctx, articleID, models.VoteDislike)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">counts.Dislikes = dislikes
+
+        if userID == nil </span><span class="cov0" title="0">{
+                return counts, nil
+        }</span>
+
+        <span class="cov0" title="0">vote, err := r.FindByArticleAndUser(ctx, articleID, *userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">if vote != nil </span><span class="cov0" title="0">{
+                counts.UserVote = string(vote.VoteType)
+                counts.UserHasVoted = true
+        }</span>
+
+        <span class="cov0" title="0">return counts, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package routes
+
+import (
+        "github.com/Wosiu6/patwos-api/config"
+        "github.com/Wosiu6/patwos-api/controllers"
+        "github.com/Wosiu6/patwos-api/middleware"
+        "github.com/Wosiu6/patwos-api/repository"
+        "github.com/Wosiu6/patwos-api/service"
+        "github.com/gin-gonic/gin"
+        "gorm.io/gorm"
+)
+
+func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) <span class="cov8" title="1">{
+        router.GET("/health", func(c *gin.Context) </span><span class="cov8" title="1">{
+                c.JSON(200, gin.H{"status": "ok"})
+        }</span>)
+
+        <span class="cov8" title="1">userRepo := repository.NewUserRepository(db)
+        commentRepo := repository.NewCommentRepository(db)
+        voteRepo := repository.NewVoteRepository(db)
+        articleRepo := repository.NewArticleRepository(db)
+
+        authService := service.NewAuthService(userRepo, cfg, db)
+        commentService := service.NewCommentService(commentRepo)
+        voteService := service.NewVoteService(voteRepo)
+        articleService := service.NewArticleService(articleRepo, userRepo)
+
+        authController := controllers.NewAuthController(authService)
+        commentController := controllers.NewCommentController(commentService)
+        voteController := controllers.NewVoteController(voteService)
+        articleController := controllers.NewArticleController(articleService)
+
+        v1 := router.Group("/api/v1")
+        </span><span class="cov8" title="1">{
+                auth := v1.Group("/auth")
+                </span><span class="cov8" title="1">{
+                        auth.POST("/register", middleware.StrictRateLimitMiddleware(), authController.Register)
+                        auth.POST("/login", middleware.StrictRateLimitMiddleware(), authController.Login)
+                        auth.GET("/me", middleware.AuthMiddleware(db, cfg), authController.GetCurrentUser)
+                        auth.POST("/logout", middleware.AuthMiddleware(db, cfg), authController.Logout)
+                }</span>
+
+                <span class="cov8" title="1">comments := v1.Group("/comments")
+                </span><span class="cov8" title="1">{
+                        comments.GET("/article/:article_id", commentController.GetCommentsByArticle)
+                        comments.GET("/:id", commentController.GetComment)
+
+                        comments.POST("", middleware.AuthMiddleware(db, cfg), commentController.CreateComment)
+                        comments.PUT("/:id", middleware.AuthMiddleware(db, cfg), commentController.UpdateComment)
+                        comments.PATCH("/:id", middleware.AuthMiddleware(db, cfg), commentController.UpdateComment)
+                        comments.DELETE("/:id", middleware.AuthMiddleware(db, cfg), commentController.DeleteComment)
+                }</span>
+
+                <span class="cov8" title="1">votes := v1.Group("/votes")
+                </span><span class="cov8" title="1">{
+                        votes.GET("/:article_id", voteController.GetVoteCounts)
+
+                        votes.POST("", middleware.AuthMiddleware(db, cfg), voteController.Vote)
+                        votes.DELETE("/:article_id", middleware.AuthMiddleware(db, cfg), voteController.RemoveVote)
+                }</span>
+                <span class="cov8" title="1">articles := v1.Group("/articles")
+                </span><span class="cov8" title="1">{
+                        articles.GET("", articleController.GetArticles)
+                        articles.GET("/:id", articleController.GetArticle)
+                        articles.GET("/:id/views", articleController.GetArticleViews)
+                        articles.POST("/:id/views/increment", articleController.IncrementArticleViews)
+
+                        articles.POST("", middleware.AuthMiddleware(db, cfg), middleware.AdminMiddleware(db), articleController.CreateArticle)
+                        articles.PUT("/:id", middleware.AuthMiddleware(db, cfg), articleController.UpdateArticle)
+                        articles.PATCH("/:id", middleware.AuthMiddleware(db, cfg), articleController.UpdateArticle)
+                        articles.DELETE("/:id", middleware.AuthMiddleware(db, cfg), articleController.DeleteArticle)
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "strings"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/repository"
+        "github.com/gosimple/slug"
+        "gorm.io/gorm"
+)
+
+var (
+        ErrArticleNotFound = errors.New("article not found")
+        ErrSlugExists      = errors.New("article with this slug already exists")
+)
+
+type ArticleService interface {
+        CreateArticle(ctx context.Context, title string, authorID uint) (*models.Article, error)
+        UpdateArticle(ctx context.Context, articleID uint, title string, userID uint) (*models.Article, error)
+        DeleteArticle(ctx context.Context, articleID uint, userID uint) error
+        GetArticle(ctx context.Context, articleID uint) (*models.Article, error)
+        GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error)
+        GetAllArticles(ctx context.Context, limit, offset int) ([]models.ArticleResponse, error)
+        GetArticleViews(ctx context.Context, articleID uint) (uint, error)
+        IncrementArticleViews(ctx context.Context, articleID uint) (uint, error)
+}
+
+type articleService struct {
+        repo     repository.ArticleRepository
+        userRepo repository.UserRepository
+}
+
+func NewArticleService(repo repository.ArticleRepository, userRepo repository.UserRepository) ArticleService <span class="cov8" title="1">{
+        return &amp;articleService{
+                repo:     repo,
+                userRepo: userRepo,
+        }
+}</span>
+
+func (s *articleService) CreateArticle(ctx context.Context, title string, authorID uint) (*models.Article, error) <span class="cov8" title="1">{
+        articleSlug := slug.Make(title)
+
+        existing, _ := s.repo.FindBySlug(ctx, articleSlug)
+        if existing != nil </span><span class="cov0" title="0">{
+                articleSlug = articleSlug + "-" + slug.Make(strings.Split(title, " ")[0])
+        }</span>
+
+        <span class="cov8" title="1">article := &amp;models.Article{
+                Title:    title,
+                Slug:     articleSlug,
+                AuthorID: authorID,
+        }
+
+        if err := s.repo.Create(ctx, article); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.FindByID(ctx, article.ID)</span>
+}
+
+func (s *articleService) UpdateArticle(ctx context.Context, articleID uint, title string, userID uint) (*models.Article, error) <span class="cov8" title="1">{
+        article, err := s.repo.FindByID(ctx, articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return nil, ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov8" title="1">user, err := s.userRepo.FindByID(ctx, userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if article.AuthorID != userID &amp;&amp; !user.IsAdmin() </span><span class="cov0" title="0">{
+                return nil, ErrForbidden
+        }</span>
+
+        <span class="cov8" title="1">if title != "" </span><span class="cov8" title="1">{
+                article.Title = title
+                article.Slug = slug.Make(title)
+        }</span>
+
+        <span class="cov8" title="1">if err := s.repo.Update(ctx, article); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.FindByID(ctx, article.ID)</span>
+}
+
+func (s *articleService) DeleteArticle(ctx context.Context, articleID uint, userID uint) error <span class="cov8" title="1">{
+        article, err := s.repo.FindByID(ctx, articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return err</span>
+        }
+
+        <span class="cov8" title="1">user, err := s.userRepo.FindByID(ctx, userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if article.AuthorID != userID &amp;&amp; !user.IsAdmin() </span><span class="cov0" title="0">{
+                return ErrForbidden
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.Delete(ctx, article)</span>
+}
+
+func (s *articleService) GetArticle(ctx context.Context, articleID uint) (*models.Article, error) <span class="cov8" title="1">{
+        article, err := s.repo.FindByID(ctx, articleID)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov0" title="0">return article, nil</span>
+}
+
+func (s *articleService) GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error) <span class="cov0" title="0">{
+        article, err := s.repo.FindBySlug(ctx, slug)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return nil, ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov0" title="0">return article, nil</span>
+}
+
+func (s *articleService) GetAllArticles(ctx context.Context, limit, offset int) ([]models.ArticleResponse, error) <span class="cov8" title="1">{
+        if limit &lt;= 0 || limit &gt; 100 </span><span class="cov0" title="0">{
+                limit = 20
+        }</span>
+        <span class="cov8" title="1">if offset &lt; 0 </span><span class="cov0" title="0">{
+                offset = 0
+        }</span>
+
+        <span class="cov8" title="1">articles, err := s.repo.FindAll(ctx, limit, offset)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">var response []models.ArticleResponse
+        for _, article := range articles </span><span class="cov8" title="1">{
+                response = append(response, article.ToResponse())
+        }</span>
+
+        <span class="cov8" title="1">return response, nil</span>
+}
+
+func (s *articleService) GetArticleViews(ctx context.Context, articleID uint) (uint, error) <span class="cov8" title="1">{
+        _, err := s.repo.FindByID(ctx, articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return 0, ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return 0, err</span>
+        }
+        <span class="cov8" title="1">return s.repo.GetViews(ctx, articleID)</span>
+}
+
+func (s *articleService) IncrementArticleViews(ctx context.Context, articleID uint) (uint, error) <span class="cov8" title="1">{
+        _, err := s.repo.FindByID(ctx, articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return 0, ErrArticleNotFound
+                }</span>
+                <span class="cov0" title="0">return 0, err</span>
+        }
+        <span class="cov8" title="1">return s.repo.IncrementViews(ctx, articleID)</span>
+}
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "time"
+
+        "github.com/Wosiu6/patwos-api/authcache"
+        "github.com/Wosiu6/patwos-api/config"
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/repository"
+        "github.com/golang-jwt/jwt/v5"
+        "gorm.io/gorm"
+)
+
+var (
+        ErrUserAlreadyExists  = errors.New("user with this email or username already exists")
+        ErrInvalidCredentials = errors.New("invalid credentials")
+        ErrUserNotFound       = errors.New("user not found")
+)
+
+type AuthService interface {
+        Register(ctx context.Context, username, email, password string) (*models.User, string, error)
+        Login(ctx context.Context, email, password string) (*models.User, string, error)
+        GetUserByID(ctx context.Context, id uint) (*models.User, error)
+        Logout(ctx context.Context, token string, userID uint) error
+        IsTokenRevoked(ctx context.Context, token string) bool
+}
+
+type authService struct {
+        userRepo repository.UserRepository
+        cfg      *config.Config
+        db       *gorm.DB
+}
+
+func NewAuthService(userRepo repository.UserRepository, cfg *config.Config, db *gorm.DB) AuthService <span class="cov8" title="1">{
+        return &amp;authService{
+                userRepo: userRepo,
+                cfg:      cfg,
+                db:       db,
+        }
+}</span>
+
+func (s *authService) Register(ctx context.Context, username, email, password string) (*models.User, string, error) <span class="cov8" title="1">{
+        exists, err := s.userRepo.ExistsByEmailOrUsername(ctx, email, username)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, "", err
+        }</span>
+        <span class="cov8" title="1">if exists </span><span class="cov8" title="1">{
+                return nil, "", ErrUserAlreadyExists
+        }</span>
+
+        <span class="cov8" title="1">user := &amp;models.User{
+                Username: username,
+                Email:    email,
+                State:    models.UserStatusActive,
+                Role:     models.UserRoleUser,
+        }
+
+        if err := user.HashPassword(password); err != nil </span><span class="cov0" title="0">{
+                return nil, "", err
+        }</span>
+
+        <span class="cov8" title="1">if err := s.userRepo.Create(ctx, user); err != nil </span><span class="cov0" title="0">{
+                return nil, "", err
+        }</span>
+
+        <span class="cov8" title="1">token, err := s.generateToken(user.ID, user.State, user.Role)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, "", err
+        }</span>
+
+        <span class="cov8" title="1">return user, token, nil</span>
+}
+
+func (s *authService) Login(ctx context.Context, email, password string) (*models.User, string, error) <span class="cov8" title="1">{
+        user, err := s.userRepo.FindByEmail(ctx, email)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return nil, "", ErrInvalidCredentials
+                }</span>
+                <span class="cov0" title="0">return nil, "", err</span>
+        }
+
+        <span class="cov8" title="1">if !user.CheckPassword(password) </span><span class="cov8" title="1">{
+                return nil, "", ErrInvalidCredentials
+        }</span>
+
+        <span class="cov8" title="1">if user.State != models.UserStatusActive </span><span class="cov0" title="0">{
+                return nil, "", ErrUnauthorized
+        }</span>
+
+        <span class="cov8" title="1">token, err := s.generateToken(user.ID, user.State, user.Role)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, "", err
+        }</span>
+
+        <span class="cov8" title="1">return user, token, nil</span>
+}
+
+func (s *authService) GetUserByID(ctx context.Context, id uint) (*models.User, error) <span class="cov0" title="0">{
+        user, err := s.userRepo.FindByID(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return nil, ErrUserNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov0" title="0">return user, nil</span>
+}
+
+func (s *authService) Logout(ctx context.Context, token string, userID uint) error <span class="cov0" title="0">{
+        parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) </span><span class="cov0" title="0">{
+                return []byte(s.cfg.JWTSecret), nil
+        }</span>)
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">claims, ok := parsedToken.Claims.(jwt.MapClaims)
+        if !ok </span><span class="cov0" title="0">{
+                return errors.New("invalid token claims")
+        }</span>
+
+        <span class="cov0" title="0">exp, ok := claims["exp"].(float64)
+        if !ok </span><span class="cov0" title="0">{
+                return errors.New("invalid expiry claim")
+        }</span>
+
+        <span class="cov0" title="0">revokedToken := &amp;models.RevokedToken{
+                Token:     token,
+                UserID:    userID,
+                RevokedAt: time.Now(),
+                ExpiresAt: time.Unix(int64(exp), 0),
+        }
+
+        if err := s.db.WithContext(ctx).Create(revokedToken).Error; err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">authcache.Add(token, revokedToken.ExpiresAt)
+        return nil</span>
+}
+
+func (s *authService) IsTokenRevoked(ctx context.Context, token string) bool <span class="cov0" title="0">{
+        if authcache.IsRevoked(token) </span><span class="cov0" title="0">{
+                return true
+        }</span>
+
+        <span class="cov0" title="0">var count int64
+        s.db.WithContext(ctx).Model(&amp;models.RevokedToken{}).
+                Where("token = ? AND expires_at &gt; ?", token, time.Now()).
+                Count(&amp;count)
+        return count &gt; 0</span>
+}
+
+func (s *authService) generateToken(userID uint, userState models.UserState, userRole models.UserRole) (string, error) <span class="cov8" title="1">{
+        claims := jwt.MapClaims{
+                "user_id": userID,
+                "exp":     time.Now().Add(time.Hour * 24 * 7).Unix(),
+                "iat":     time.Now().Unix(),
+                "state":   userState,
+                "role":    userRole,
+        }
+
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+        return token.SignedString([]byte(s.cfg.JWTSecret))
+}</span>
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/repository"
+        "gorm.io/gorm"
+)
+
+var (
+        ErrCommentNotFound = errors.New("comment not found")
+        ErrForbidden       = errors.New("forbidden: you can only modify your own comments")
+)
+
+type CommentService interface {
+        CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error)
+        UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error)
+        DeleteComment(ctx context.Context, commentID uint, userID uint) error
+        GetComment(ctx context.Context, commentID uint) (*models.Comment, error)
+        GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error)
+}
+
+type commentService struct {
+        repo repository.CommentRepository
+}
+
+func NewCommentService(repo repository.CommentRepository) CommentService <span class="cov8" title="1">{
+        return &amp;commentService{repo: repo}
+}</span>
+
+func (s *commentService) CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error) <span class="cov8" title="1">{
+        comment := &amp;models.Comment{
+                Content:   content,
+                ArticleID: articleID,
+                UserID:    userID,
+        }
+
+        if err := s.repo.Create(ctx, comment); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.FindByID(ctx, comment.ID)</span>
+}
+
+func (s *commentService) UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error) <span class="cov8" title="1">{
+        comment, err := s.repo.FindByID(ctx, commentID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return nil, ErrCommentNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+
+        <span class="cov8" title="1">if comment.UserID != userID </span><span class="cov0" title="0">{
+                return nil, ErrForbidden
+        }</span>
+
+        <span class="cov8" title="1">comment.Content = content
+        if err := s.repo.Update(ctx, comment); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.FindByID(ctx, comment.ID)</span>
+}
+
+func (s *commentService) DeleteComment(ctx context.Context, commentID uint, userID uint) error <span class="cov8" title="1">{
+        comment, err := s.repo.FindByID(ctx, commentID)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov0" title="0">{
+                        return ErrCommentNotFound
+                }</span>
+                <span class="cov0" title="0">return err</span>
+        }
+
+        <span class="cov8" title="1">if comment.UserID != userID </span><span class="cov0" title="0">{
+                return ErrForbidden
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.Delete(ctx, comment)</span>
+}
+
+func (s *commentService) GetComment(ctx context.Context, commentID uint) (*models.Comment, error) <span class="cov8" title="1">{
+        comment, err := s.repo.FindByID(ctx, commentID)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, gorm.ErrRecordNotFound) </span><span class="cov8" title="1">{
+                        return nil, ErrCommentNotFound
+                }</span>
+                <span class="cov0" title="0">return nil, err</span>
+        }
+        <span class="cov8" title="1">return comment, nil</span>
+}
+
+func (s *commentService) GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error) <span class="cov8" title="1">{
+        comments, err := s.repo.FindByArticleID(ctx, articleID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">var response []models.CommentResponse
+        for _, comment := range comments </span><span class="cov8" title="1">{
+                response = append(response, comment.ToResponse())
+        }</span>
+
+        <span class="cov8" title="1">return response, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+
+        "github.com/Wosiu6/patwos-api/models"
+        "github.com/Wosiu6/patwos-api/repository"
+)
+
+var (
+        ErrVoteNotFound    = errors.New("vote not found")
+        ErrInvalidVoteType = errors.New("invalid vote type")
+        ErrUnauthorized    = errors.New("unauthorized")
+)
+
+type VoteService interface {
+        Vote(ctx context.Context, articleID uint, userID uint, voteType models.VoteType) error
+        RemoveVote(ctx context.Context, articleID uint, userID uint) error
+        GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error)
+}
+
+type voteService struct {
+        repo repository.VoteRepository
+}
+
+func NewVoteService(repo repository.VoteRepository) VoteService <span class="cov8" title="1">{
+        return &amp;voteService{repo: repo}
+}</span>
+
+func (s *voteService) Vote(ctx context.Context, articleID uint, userID uint, voteType models.VoteType) error <span class="cov8" title="1">{
+        if !voteType.IsValid() </span><span class="cov8" title="1">{
+                return ErrInvalidVoteType
+        }</span>
+
+        <span class="cov8" title="1">existingVote, err := s.repo.FindByArticleAndUser(ctx, articleID, userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">if existingVote != nil </span><span class="cov8" title="1">{
+                if existingVote.VoteType != voteType </span><span class="cov8" title="1">{
+                        existingVote.VoteType = voteType
+                        return s.repo.Update(ctx, existingVote)
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }
+
+        <span class="cov8" title="1">vote := &amp;models.ArticleVote{
+                ArticleID: articleID,
+                UserID:    userID,
+                VoteType:  voteType,
+        }
+
+        return s.repo.Create(ctx, vote)</span>
+}
+
+func (s *voteService) RemoveVote(ctx context.Context, articleID uint, userID uint) error <span class="cov8" title="1">{
+        return s.repo.Delete(ctx, articleID, userID)
+}</span>
+
+func (s *voteService) GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error) <span class="cov8" title="1">{
+        return s.repo.GetVoteCounts(ctx, articleID, userID)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

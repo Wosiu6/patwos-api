@@ -33,7 +33,7 @@ func (ac *ArticleController) GetArticles(c *gin.Context) {
 			ID:        article.ID,
 			Title:     article.Title,
 			Slug:      article.Slug,
-			Author:    article.Author.ToResponse(),
+			Author:    article.Author,
 			CreatedAt: article.CreatedAt,
 			UpdatedAt: article.UpdatedAt,
 			Views:     article.Views,

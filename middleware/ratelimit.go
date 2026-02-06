@@ -10,19 +10,23 @@ import (
 )
 
 type IPRateLimiter struct {
-	ips map[string]*rate.Limiter
-	mu  *sync.RWMutex
-	r   rate.Limit
-	b   int
+	ips      map[string]*rate.Limiter
+	lastSeen map[string]time.Time
+	mu       *sync.RWMutex
+	r        rate.Limit
+	b        int
 }
 
 func NewIPRateLimiter(r rate.Limit, b int) *IPRateLimiter {
-	return &IPRateLimiter{
-		ips: make(map[string]*rate.Limiter),
-		mu:  &sync.RWMutex{},
-		r:   r,
-		b:   b,
+	limiter := &IPRateLimiter{
+		ips:      make(map[string]*rate.Limiter),
+		lastSeen: make(map[string]time.Time),
+		mu:       &sync.RWMutex{},
+		r:        r,
+		b:        b,
 	}
+	go limiter.cleanupLoop(10*time.Minute, time.Hour)
+	return limiter
 }
 
 func (i *IPRateLimiter) AddIP(ip string) *rate.Limiter {
@@ -31,6 +35,7 @@ func (i *IPRateLimiter) AddIP(ip string) *rate.Limiter {
 
 	limiter := rate.NewLimiter(i.r, i.b)
 	i.ips[ip] = limiter
+	i.lastSeen[ip] = time.Now()
 
 	return limiter
 }
@@ -43,9 +48,26 @@ func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter {
 		i.mu.Unlock()
 		return i.AddIP(ip)
 	}
-
+	i.lastSeen[ip] = time.Now()
 	i.mu.Unlock()
 	return limiter
+}
+
+func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		cutoff := time.Now().Add(-maxAge)
+		i.mu.Lock()
+		for ip, last := range i.lastSeen {
+			if last.Before(cutoff) {
+				delete(i.lastSeen, ip)
+				delete(i.ips, ip)
+			}
+		}
+		i.mu.Unlock()
+	}
 }
 
 func RateLimitMiddleware(rateLimit rate.Limit, burstSize int) gin.HandlerFunc {

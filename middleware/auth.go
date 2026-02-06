@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/models"
@@ -38,7 +40,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		}
 
 		var revokedToken models.RevokedToken
-		if err := db.Where("token = ?", tokenString).First(&revokedToken).Error; err == nil {
+		if err := db.Where("token = ? AND expires_at > ?", tokenString, time.Now()).First(&revokedToken).Error; err == nil {
 			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   string(ErrTokenRevoked),
@@ -49,7 +51,8 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
+		token, err := parser.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
@@ -64,7 +67,7 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 				return "invalid"
 			}() + " | Status: 401\n"))
 
-			if err == jwt.ErrTokenExpired {
+			if errors.Is(err, jwt.ErrTokenExpired) {
 				c.JSON(http.StatusUnauthorized, gin.H{
 					"error":   string(ErrTokenExpired),
 					"message": "Your session has expired. Please log in again.",

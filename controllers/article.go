@@ -27,7 +27,18 @@ func (ac *ArticleController) GetArticles(c *gin.Context) {
 		return
 	}
 
-	summaries := make([]models.ArticleSummaryResponse, len(articles))
+	summaries := make([]models.ArticleSummaryResponse, 0, len(articles))
+	for _, article := range articles {
+		summaries = append(summaries, models.ArticleSummaryResponse{
+			ID:        article.ID,
+			Title:     article.Title,
+			Slug:      article.Slug,
+			Author:    article.Author,
+			CreatedAt: article.CreatedAt,
+			UpdatedAt: article.UpdatedAt,
+			Views:     article.Views,
+		})
+	}
 
 	c.JSON(http.StatusOK, gin.H{"articles": summaries})
 }

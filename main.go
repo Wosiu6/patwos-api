@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/database"
@@ -45,6 +44,8 @@ func main() {
 
 	router.Use(middleware.SecurityHeaders())
 
+	router.Use(middleware.BodySizeLimiter(cfg.MaxRequestSize))
+
 	router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))
 
 	router.Use(middleware.CORSMiddleware(cfg.AllowedOrigins))
@@ -59,10 +60,7 @@ func main() {
 
 	routes.SetupRoutes(router, db, cfg)
 
-	port := os.Getenv("API_PORT")
-	if port == "" {
-		port = "8080"
-	}
+	port := cfg.APIPort
 
 	log.Printf("[STARTUP] Configuration loaded:")
 	log.Printf("  - Database: %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)

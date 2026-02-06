@@ -81,6 +81,10 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	}
 
 	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" || len(authHeader) < 8 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 	token := authHeader[7:]
 
 	if err := ac.service.Logout(token, userID.(uint)); err != nil {

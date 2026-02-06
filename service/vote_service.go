@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"github.com/Wosiu6/patwos-api/models"
@@ -14,9 +15,9 @@ var (
 )
 
 type VoteService interface {
-	Vote(articleID uint, userID uint, voteType models.VoteType) error
-	RemoveVote(articleID uint, userID uint) error
-	GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error)
+	Vote(ctx context.Context, articleID uint, userID uint, voteType models.VoteType) error
+	RemoveVote(ctx context.Context, articleID uint, userID uint) error
+	GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error)
 }
 
 type voteService struct {
@@ -27,12 +28,12 @@ func NewVoteService(repo repository.VoteRepository) VoteService {
 	return &voteService{repo: repo}
 }
 
-func (s *voteService) Vote(articleID uint, userID uint, voteType models.VoteType) error {
+func (s *voteService) Vote(ctx context.Context, articleID uint, userID uint, voteType models.VoteType) error {
 	if !voteType.IsValid() {
 		return ErrInvalidVoteType
 	}
 
-	existingVote, err := s.repo.FindByArticleAndUser(articleID, userID)
+	existingVote, err := s.repo.FindByArticleAndUser(ctx, articleID, userID)
 	if err != nil {
 		return err
 	}
@@ -40,7 +41,7 @@ func (s *voteService) Vote(articleID uint, userID uint, voteType models.VoteType
 	if existingVote != nil {
 		if existingVote.VoteType != voteType {
 			existingVote.VoteType = voteType
-			return s.repo.Update(existingVote)
+			return s.repo.Update(ctx, existingVote)
 		}
 		return nil
 	}
@@ -51,13 +52,13 @@ func (s *voteService) Vote(articleID uint, userID uint, voteType models.VoteType
 		VoteType:  voteType,
 	}
 
-	return s.repo.Create(vote)
+	return s.repo.Create(ctx, vote)
 }
 
-func (s *voteService) RemoveVote(articleID uint, userID uint) error {
-	return s.repo.Delete(articleID, userID)
+func (s *voteService) RemoveVote(ctx context.Context, articleID uint, userID uint) error {
+	return s.repo.Delete(ctx, articleID, userID)
 }
 
-func (s *voteService) GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error) {
-	return s.repo.GetVoteCounts(articleID, userID)
+func (s *voteService) GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error) {
+	return s.repo.GetVoteCounts(ctx, articleID, userID)
 }

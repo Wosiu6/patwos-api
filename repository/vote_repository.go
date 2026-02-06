@@ -1,17 +1,19 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/Wosiu6/patwos-api/models"
 	"gorm.io/gorm"
 )
 
 type VoteRepository interface {
-	Create(vote *models.ArticleVote) error
-	Update(vote *models.ArticleVote) error
-	Delete(articleID uint, userID uint) error
-	FindByArticleAndUser(articleID uint, userID uint) (*models.ArticleVote, error)
-	CountByArticleAndType(articleID uint, voteType models.VoteType) (int64, error)
-	GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error)
+	Create(ctx context.Context, vote *models.ArticleVote) error
+	Update(ctx context.Context, vote *models.ArticleVote) error
+	Delete(ctx context.Context, articleID uint, userID uint) error
+	FindByArticleAndUser(ctx context.Context, articleID uint, userID uint) (*models.ArticleVote, error)
+	CountByArticleAndType(ctx context.Context, articleID uint, voteType models.VoteType) (int64, error)
+	GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error)
 }
 
 type voteRepository struct {
@@ -22,22 +24,22 @@ func NewVoteRepository(db *gorm.DB) VoteRepository {
 	return &voteRepository{db: db}
 }
 
-func (r *voteRepository) Create(vote *models.ArticleVote) error {
-	return r.db.Create(vote).Error
+func (r *voteRepository) Create(ctx context.Context, vote *models.ArticleVote) error {
+	return r.db.WithContext(ctx).Create(vote).Error
 }
 
-func (r *voteRepository) Update(vote *models.ArticleVote) error {
-	return r.db.Save(vote).Error
+func (r *voteRepository) Update(ctx context.Context, vote *models.ArticleVote) error {
+	return r.db.WithContext(ctx).Save(vote).Error
 }
 
-func (r *voteRepository) Delete(articleID uint, userID uint) error {
-	return r.db.Where("article_id = ? AND user_id = ?", articleID, userID).
+func (r *voteRepository) Delete(ctx context.Context, articleID uint, userID uint) error {
+	return r.db.WithContext(ctx).Where("article_id = ? AND user_id = ?", articleID, userID).
 		Delete(&models.ArticleVote{}).Error
 }
 
-func (r *voteRepository) FindByArticleAndUser(articleID uint, userID uint) (*models.ArticleVote, error) {
+func (r *voteRepository) FindByArticleAndUser(ctx context.Context, articleID uint, userID uint) (*models.ArticleVote, error) {
 	var vote models.ArticleVote
-	err := r.db.Where("article_id = ? AND user_id = ?", articleID, userID).
+	err := r.db.WithContext(ctx).Where("article_id = ? AND user_id = ?", articleID, userID).
 		First(&vote).Error
 
 	if err == gorm.ErrRecordNotFound {
@@ -46,26 +48,26 @@ func (r *voteRepository) FindByArticleAndUser(articleID uint, userID uint) (*mod
 	return &vote, err
 }
 
-func (r *voteRepository) CountByArticleAndType(articleID uint, voteType models.VoteType) (int64, error) {
+func (r *voteRepository) CountByArticleAndType(ctx context.Context, articleID uint, voteType models.VoteType) (int64, error) {
 	var count int64
-	err := r.db.Model(&models.ArticleVote{}).
+	err := r.db.WithContext(ctx).Model(&models.ArticleVote{}).
 		Where("article_id = ? AND vote_type = ?", articleID, voteType).
 		Count(&count).Error
 	return count, err
 }
 
-func (r *voteRepository) GetVoteCounts(articleID uint, userID *uint) (*models.VoteCounts, error) {
+func (r *voteRepository) GetVoteCounts(ctx context.Context, articleID uint, userID *uint) (*models.VoteCounts, error) {
 	counts := &models.VoteCounts{
 		ArticleID: articleID,
 	}
 
-	likes, err := r.CountByArticleAndType(articleID, models.VoteLike)
+	likes, err := r.CountByArticleAndType(ctx, articleID, models.VoteLike)
 	if err != nil {
 		return nil, err
 	}
 	counts.Likes = likes
 
-	dislikes, err := r.CountByArticleAndType(articleID, models.VoteDislike)
+	dislikes, err := r.CountByArticleAndType(ctx, articleID, models.VoteDislike)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +77,7 @@ func (r *voteRepository) GetVoteCounts(articleID uint, userID *uint) (*models.Vo
 		return counts, nil
 	}
 
-	vote, err := r.FindByArticleAndUser(articleID, *userID)
+	vote, err := r.FindByArticleAndUser(ctx, articleID, *userID)
 	if err != nil {
 		return nil, err
 	}

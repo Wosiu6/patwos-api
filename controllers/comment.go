@@ -20,7 +20,7 @@ func NewCommentController(commentService service.CommentService) *CommentControl
 func (cc *CommentController) GetCommentsByArticle(c *gin.Context) {
 	articleID := c.Param("article_id")
 
-	comments, err := cc.service.GetCommentsByArticle(articleID)
+	comments, err := cc.service.GetCommentsByArticle(c.Request.Context(), articleID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
 		return
@@ -42,7 +42,7 @@ func (cc *CommentController) CreateComment(c *gin.Context) {
 		return
 	}
 
-	comment, err := cc.service.CreateComment(req.Content, req.ArticleID, userID.(uint))
+	comment, err := cc.service.CreateComment(c.Request.Context(), req.Content, req.ArticleID, userID.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create comment"})
 		return
@@ -70,7 +70,7 @@ func (cc *CommentController) UpdateComment(c *gin.Context) {
 		return
 	}
 
-	comment, err := cc.service.UpdateComment(uint(commentID), req.Content, userID.(uint))
+	comment, err := cc.service.UpdateComment(c.Request.Context(), uint(commentID), req.Content, userID.(uint))
 	if err != nil {
 		if err == service.ErrCommentNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
@@ -100,7 +100,7 @@ func (cc *CommentController) DeleteComment(c *gin.Context) {
 		return
 	}
 
-	err = cc.service.DeleteComment(uint(commentID), userID.(uint))
+	err = cc.service.DeleteComment(c.Request.Context(), uint(commentID), userID.(uint))
 	if err != nil {
 		if err == service.ErrCommentNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
@@ -124,7 +124,7 @@ func (cc *CommentController) GetComment(c *gin.Context) {
 		return
 	}
 
-	comment, err := cc.service.GetComment(uint(commentID))
+	comment, err := cc.service.GetComment(c.Request.Context(), uint(commentID))
 	if err != nil {
 		if err == service.ErrCommentNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})

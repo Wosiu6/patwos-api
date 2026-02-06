@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"time"
 
+	"github.com/Wosiu6/patwos-api/authcache"
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/models"
 	"github.com/Wosiu6/patwos-api/repository"
@@ -18,11 +20,11 @@ var (
 )
 
 type AuthService interface {
-	Register(username, email, password string) (*models.User, string, error)
-	Login(email, password string) (*models.User, string, error)
-	GetUserByID(id uint) (*models.User, error)
-	Logout(token string, userID uint) error
-	IsTokenRevoked(token string) bool
+	Register(ctx context.Context, username, email, password string) (*models.User, string, error)
+	Login(ctx context.Context, email, password string) (*models.User, string, error)
+	GetUserByID(ctx context.Context, id uint) (*models.User, error)
+	Logout(ctx context.Context, token string, userID uint) error
+	IsTokenRevoked(ctx context.Context, token string) bool
 }
 
 type authService struct {
@@ -39,8 +41,8 @@ func NewAuthService(userRepo repository.UserRepository, cfg *config.Config, db *
 	}
 }
 
-func (s *authService) Register(username, email, password string) (*models.User, string, error) {
-	exists, err := s.userRepo.ExistsByEmailOrUsername(email, username)
+func (s *authService) Register(ctx context.Context, username, email, password string) (*models.User, string, error) {
+	exists, err := s.userRepo.ExistsByEmailOrUsername(ctx, email, username)
 	if err != nil {
 		return nil, "", err
 	}
@@ -59,7 +61,7 @@ func (s *authService) Register(username, email, password string) (*models.User, 
 		return nil, "", err
 	}
 
-	if err := s.userRepo.Create(user); err != nil {
+	if err := s.userRepo.Create(ctx, user); err != nil {
 		return nil, "", err
 	}
 
@@ -71,8 +73,8 @@ func (s *authService) Register(username, email, password string) (*models.User, 
 	return user, token, nil
 }
 
-func (s *authService) Login(email, password string) (*models.User, string, error) {
-	user, err := s.userRepo.FindByEmail(email)
+func (s *authService) Login(ctx context.Context, email, password string) (*models.User, string, error) {
+	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, "", ErrInvalidCredentials
@@ -96,8 +98,8 @@ func (s *authService) Login(email, password string) (*models.User, string, error
 	return user, token, nil
 }
 
-func (s *authService) GetUserByID(id uint) (*models.User, error) {
-	user, err := s.userRepo.FindByID(id)
+func (s *authService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
+	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound
@@ -107,7 +109,7 @@ func (s *authService) GetUserByID(id uint) (*models.User, error) {
 	return user, nil
 }
 
-func (s *authService) Logout(token string, userID uint) error {
+func (s *authService) Logout(ctx context.Context, token string, userID uint) error {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
 		return []byte(s.cfg.JWTSecret), nil
 	})
@@ -132,12 +134,21 @@ func (s *authService) Logout(token string, userID uint) error {
 		ExpiresAt: time.Unix(int64(exp), 0),
 	}
 
-	return s.db.Create(revokedToken).Error
+	if err := s.db.WithContext(ctx).Create(revokedToken).Error; err != nil {
+		return err
+	}
+
+	authcache.Add(token, revokedToken.ExpiresAt)
+	return nil
 }
 
-func (s *authService) IsTokenRevoked(token string) bool {
+func (s *authService) IsTokenRevoked(ctx context.Context, token string) bool {
+	if authcache.IsRevoked(token) {
+		return true
+	}
+
 	var count int64
-	s.db.Model(&models.RevokedToken{}).
+	s.db.WithContext(ctx).Model(&models.RevokedToken{}).
 		Where("token = ? AND expires_at > ?", token, time.Now()).
 		Count(&count)
 	return count > 0

@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/database"
@@ -68,9 +73,38 @@ func main() {
 	log.Printf("  - Mode: %s", cfg.GinMode)
 	log.Printf("  - CORS Origins: %v", cfg.AllowedOrigins)
 	log.Printf("  - Rate Limit: 100 req/s, burst: 200")
+	if cfg.GinMode == "release" && cfg.DBSSLMode == "disable" {
+		log.Printf("[WARNING] DB_SSLMODE is disable in release mode; enable TLS for production.")
+	}
+
+	server := &http.Server{
+		Addr:         ":" + port,
+		Handler:      router,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
+	}
+
 	log.Printf("[STARTUP] Starting server on port %s", port)
 	log.Printf("[STARTUP] API ready - Health: http://localhost:%s/health", port)
-	if err := router.Run(":" + port); err != nil {
-		log.Fatal("[ERROR] Failed to start server:", err)
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("[ERROR] Failed to start server: %v", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Printf("[SHUTDOWN] Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("[ERROR] Server shutdown failed: %v", err)
 	}
+
+	log.Printf("[SHUTDOWN] Server exited")
 }

@@ -1,0 +1,41 @@
+name: Publish Coverage to GH Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: true
+
+      - name: Generate coverage report
+        run: |
+          go test -v -coverprofile cover.out ./...
+          go tool cover -html cover.out -o index.html
+          mkdir -p pages
+          mv index.html pages/index.html
+
+      - name: Deploy to gh-pages (index.html only)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: pages
+          keep_files: false

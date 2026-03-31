@@ -15,11 +15,11 @@ var (
 )
 
 type CommentService interface {
-	CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error)
+	CreateComment(ctx context.Context, content string, articleID uint, userID uint) (*models.Comment, error)
 	UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error)
 	DeleteComment(ctx context.Context, commentID uint, userID uint) error
 	GetComment(ctx context.Context, commentID uint) (*models.Comment, error)
-	GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error)
+	GetCommentsByArticle(ctx context.Context, articleID uint) ([]models.CommentResponse, error)
 }
 
 type commentService struct {
@@ -30,7 +30,7 @@ func NewCommentService(repo repository.CommentRepository) CommentService {
 	return &commentService{repo: repo}
 }
 
-func (s *commentService) CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error) {
+func (s *commentService) CreateComment(ctx context.Context, content string, articleID uint, userID uint) (*models.Comment, error) {
 	comment := &models.Comment{
 		Content:   content,
 		ArticleID: articleID,
@@ -92,7 +92,7 @@ func (s *commentService) GetComment(ctx context.Context, commentID uint) (*model
 	return comment, nil
 }
 
-func (s *commentService) GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error) {
+func (s *commentService) GetCommentsByArticle(ctx context.Context, articleID uint) ([]models.CommentResponse, error) {
 	comments, err := s.repo.FindByArticleID(ctx, articleID)
 	if err != nil {
 		return nil, err

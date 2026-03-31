@@ -1,4 +1,3 @@
-# Build stage
 FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
@@ -14,16 +13,24 @@ RUN go env -w GOPROXY=https://proxy.golang.org,direct && \
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o main .
 
-FROM alpine:latest
+FROM alpine:3.22
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup
 
-WORKDIR /root/
+WORKDIR /app
 
 COPY --from=builder /app/main .
 
+RUN chown -R appuser:appgroup /app
+
+USER appuser
+
 EXPOSE 8080
 
-CMD ["./main"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+CMD ["./main", "serve"]

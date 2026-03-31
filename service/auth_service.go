@@ -10,7 +10,6 @@ import (
 	"github.com/Wosiu6/patwos-api/models"
 	"github.com/Wosiu6/patwos-api/repository"
 	"github.com/golang-jwt/jwt/v5"
-	"gorm.io/gorm"
 )
 
 var (
@@ -28,16 +27,16 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepo repository.UserRepository
-	cfg      *config.Config
-	db       *gorm.DB
+	userRepo         repository.UserRepository
+	revokedTokenRepo repository.RevokedTokenRepository
+	cfg              *config.Config
 }
 
-func NewAuthService(userRepo repository.UserRepository, cfg *config.Config, db *gorm.DB) AuthService {
+func NewAuthService(userRepo repository.UserRepository, revokedTokenRepo repository.RevokedTokenRepository, cfg *config.Config) AuthService {
 	return &authService{
-		userRepo: userRepo,
-		cfg:      cfg,
-		db:       db,
+		userRepo:         userRepo,
+		revokedTokenRepo: revokedTokenRepo,
+		cfg:              cfg,
 	}
 }
 
@@ -76,10 +75,7 @@ func (s *authService) Register(ctx context.Context, username, email, password st
 func (s *authService) Login(ctx context.Context, email, password string) (*models.User, string, error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, "", ErrInvalidCredentials
-		}
-		return nil, "", err
+		return nil, "", ErrInvalidCredentials
 	}
 
 	if !user.CheckPassword(password) {
@@ -101,10 +97,7 @@ func (s *authService) Login(ctx context.Context, email, password string) (*model
 func (s *authService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
 	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
-		}
-		return nil, err
+		return nil, ErrUserNotFound
 	}
 	return user, nil
 }
@@ -134,7 +127,7 @@ func (s *authService) Logout(ctx context.Context, token string, userID uint) err
 		ExpiresAt: time.Unix(int64(exp), 0),
 	}
 
-	if err := s.db.WithContext(ctx).Create(revokedToken).Error; err != nil {
+	if err := s.revokedTokenRepo.Create(ctx, revokedToken); err != nil {
 		return err
 	}
 
@@ -147,11 +140,8 @@ func (s *authService) IsTokenRevoked(ctx context.Context, token string) bool {
 		return true
 	}
 
-	var count int64
-	s.db.WithContext(ctx).Model(&models.RevokedToken{}).
-		Where("token = ? AND expires_at > ?", token, time.Now()).
-		Count(&count)
-	return count > 0
+	exists, _ := s.revokedTokenRepo.ExistsByToken(ctx, token)
+	return exists
 }
 
 func (s *authService) generateToken(userID uint, userState models.UserState, userRole models.UserRole) (string, error) {

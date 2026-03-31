@@ -4,11 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/Wosiu6/patwos-api/authcache"
 	"github.com/Wosiu6/patwos-api/config"
 	"github.com/Wosiu6/patwos-api/models"
+	"github.com/Wosiu6/patwos-api/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
@@ -24,7 +24,14 @@ const (
 	ErrSessionExpired ErrorMessage = "session_expired"
 )
 
-func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
+func AuthMiddleware(db *gorm.DB, cfg *config.Config, revokedTokenRepo ...repository.RevokedTokenRepository) gin.HandlerFunc {
+	var repo repository.RevokedTokenRepository
+	if len(revokedTokenRepo) > 0 {
+		repo = revokedTokenRepo[0]
+	} else {
+		repo = repository.NewRevokedTokenRepository(db)
+	}
+
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -52,8 +59,8 @@ func AuthMiddleware(db *gorm.DB, cfg *config.Config) gin.HandlerFunc {
 		}
 
 		ctx := c.Request.Context()
-		var revokedToken models.RevokedToken
-		if err := db.WithContext(ctx).Where("token = ? AND expires_at > ?", tokenString, time.Now()).First(&revokedToken).Error; err == nil {
+		revokedToken, err := repo.FindByToken(ctx, tokenString)
+		if err == nil && revokedToken != nil {
 			authcache.Add(tokenString, revokedToken.ExpiresAt)
 			gin.DefaultWriter.Write([]byte("[AUTH-FAILED] Revoked token | IP: " + c.ClientIP() + " | Path: " + c.Request.URL.Path + " | Status: 401\n"))
 			c.JSON(http.StatusUnauthorized, gin.H{

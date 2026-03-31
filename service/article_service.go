@@ -3,7 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/Wosiu6/patwos-api/models"
 	"github.com/Wosiu6/patwos-api/repository"
@@ -12,8 +15,9 @@ import (
 )
 
 var (
-	ErrArticleNotFound = errors.New("article not found")
-	ErrSlugExists      = errors.New("article with this slug already exists")
+	ErrArticleNotFound    = errors.New("article not found")
+	ErrSlugExists         = errors.New("article with this slug already exists")
+	ErrViewAlreadyCounted = errors.New("view already counted")
 )
 
 type ArticleService interface {
@@ -24,18 +28,57 @@ type ArticleService interface {
 	GetArticleBySlug(ctx context.Context, slug string) (*models.Article, error)
 	GetAllArticles(ctx context.Context, limit, offset int) ([]models.ArticleResponse, error)
 	GetArticleViews(ctx context.Context, articleID uint) (uint, error)
-	IncrementArticleViews(ctx context.Context, articleID uint) (uint, error)
+	IncrementArticleViews(ctx context.Context, articleID uint, ip string) (uint, error)
+}
+
+type viewDedup struct {
+	mu   sync.Mutex
+	seen map[string]time.Time
+}
+
+func newViewDedup(ttl time.Duration) *viewDedup {
+	vd := &viewDedup{seen: make(map[string]time.Time)}
+	go vd.cleanupLoop(ttl)
+	return vd
+}
+
+func (vd *viewDedup) Allow(articleID uint, ip string) bool {
+	key := fmt.Sprintf("%d:%s", articleID, ip)
+	vd.mu.Lock()
+	defer vd.mu.Unlock()
+	if _, exists := vd.seen[key]; exists {
+		return false
+	}
+	vd.seen[key] = time.Now()
+	return true
+}
+
+func (vd *viewDedup) cleanupLoop(ttl time.Duration) {
+	ticker := time.NewTicker(ttl / 2)
+	defer ticker.Stop()
+	for range ticker.C {
+		cutoff := time.Now().Add(-ttl)
+		vd.mu.Lock()
+		for k, t := range vd.seen {
+			if t.Before(cutoff) {
+				delete(vd.seen, k)
+			}
+		}
+		vd.mu.Unlock()
+	}
 }
 
 type articleService struct {
-	repo     repository.ArticleRepository
-	userRepo repository.UserRepository
+	repo      repository.ArticleRepository
+	userRepo  repository.UserRepository
+	viewDedup *viewDedup
 }
 
 func NewArticleService(repo repository.ArticleRepository, userRepo repository.UserRepository) ArticleService {
 	return &articleService{
-		repo:     repo,
-		userRepo: userRepo,
+		repo:      repo,
+		userRepo:  userRepo,
+		viewDedup: newViewDedup(24 * time.Hour),
 	}
 }
 
@@ -165,13 +208,16 @@ func (s *articleService) GetArticleViews(ctx context.Context, articleID uint) (u
 	return s.repo.GetViews(ctx, articleID)
 }
 
-func (s *articleService) IncrementArticleViews(ctx context.Context, articleID uint) (uint, error) {
+func (s *articleService) IncrementArticleViews(ctx context.Context, articleID uint, ip string) (uint, error) {
 	_, err := s.repo.FindByID(ctx, articleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return 0, ErrArticleNotFound
 		}
 		return 0, err
+	}
+	if !s.viewDedup.Allow(articleID, ip) {
+		return s.repo.GetViews(ctx, articleID)
 	}
 	return s.repo.IncrementViews(ctx, articleID)
 }

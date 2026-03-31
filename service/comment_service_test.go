@@ -11,14 +11,14 @@ import (
 
 type fakeCommentRepo struct {
 	byID   map[uint]*models.Comment
-	byArt  map[string][]*models.Comment
+	byArt  map[uint][]*models.Comment
 	nextID uint
 }
 
 func newFakeCommentRepo() *fakeCommentRepo {
 	return &fakeCommentRepo{
 		byID:   make(map[uint]*models.Comment),
-		byArt:  make(map[string][]*models.Comment),
+		byArt:  make(map[uint][]*models.Comment),
 		nextID: 1,
 	}
 }
@@ -49,7 +49,7 @@ func (r *fakeCommentRepo) FindByID(_ context.Context, id uint) (*models.Comment,
 	return comment, nil
 }
 
-func (r *fakeCommentRepo) FindByArticleID(_ context.Context, articleID string) ([]models.Comment, error) {
+func (r *fakeCommentRepo) FindByArticleID(_ context.Context, articleID uint) ([]models.Comment, error) {
 	comments := r.byArt[articleID]
 	var res []models.Comment
 	for _, c := range comments {
@@ -63,7 +63,7 @@ func TestCommentService_CRUD(t *testing.T) {
 	repo := newFakeCommentRepo()
 	svc := NewCommentService(repo)
 
-	created, err := svc.CreateComment(ctx, "hi", "a1", 1)
+	created, err := svc.CreateComment(ctx, "hi", 1, 1)
 	if err != nil {
 		t.Fatalf("create comment failed: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestCommentService_CRUD(t *testing.T) {
 		t.Fatalf("get comment failed: %v", err)
 	}
 
-	comments, err := svc.GetCommentsByArticle(ctx, "a1")
+	comments, err := svc.GetCommentsByArticle(ctx, 1)
 	if err != nil || len(comments) != 1 {
 		t.Fatalf("expected 1 comment")
 	}

@@ -163,38 +163,31 @@ func (ac *ArticleController) DeleteArticle(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Article deleted successfully"})
 }
 
-func (ac *ArticleController) GetArticleViews(c *gin.Context) {
+func (ac *ArticleController) resolveArticleID(c *gin.Context) (uint, bool) {
 	id := c.Param("id")
-
-	// Try numeric ID first; fallback to slug
 	articleID, err := strconv.ParseUint(id, 10, 32)
-	var article *serviceArticle
+	if err == nil {
+		return uint(articleID), true
+	}
+	article, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
 	if err != nil {
-		// Treat as slug
-		a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
-		if err != nil {
-			if err == service.ErrArticleNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
-				return
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
-			return
+		if err == service.ErrArticleNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+			return 0, false
 		}
-		article = &serviceArticle{ID: a.ID}
-	} else {
-		a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
-		if err != nil {
-			if err == service.ErrArticleNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
-				return
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
-			return
-		}
-		article = &serviceArticle{ID: a.ID}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
+		return 0, false
+	}
+	return article.ID, true
+}
+
+func (ac *ArticleController) GetArticleViews(c *gin.Context) {
+	articleID, ok := ac.resolveArticleID(c)
+	if !ok {
+		return
 	}
 
-	views, err := ac.service.GetArticleViews(c.Request.Context(), article.ID)
+	views, err := ac.service.GetArticleViews(c.Request.Context(), articleID)
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -207,37 +200,12 @@ func (ac *ArticleController) GetArticleViews(c *gin.Context) {
 }
 
 func (ac *ArticleController) IncrementArticleViews(c *gin.Context) {
-	id := c.Param("id")
-
-	// Try numeric ID first; fallback to slug
-	articleID, err := strconv.ParseUint(id, 10, 32)
-	var article *serviceArticle
-	if err != nil {
-		// Treat as slug
-		a, err := ac.service.GetArticleBySlug(c.Request.Context(), id)
-		if err != nil {
-			if err == service.ErrArticleNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
-				return
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
-			return
-		}
-		article = &serviceArticle{ID: a.ID}
-	} else {
-		a, err := ac.service.GetArticle(c.Request.Context(), uint(articleID))
-		if err != nil {
-			if err == service.ErrArticleNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
-				return
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch article"})
-			return
-		}
-		article = &serviceArticle{ID: a.ID}
+	articleID, ok := ac.resolveArticleID(c)
+	if !ok {
+		return
 	}
 
-	views, err := ac.service.IncrementArticleViews(c.Request.Context(), article.ID)
+	views, err := ac.service.IncrementArticleViews(c.Request.Context(), articleID, c.ClientIP())
 	if err != nil {
 		if err == service.ErrArticleNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
@@ -247,8 +215,4 @@ func (ac *ArticleController) IncrementArticleViews(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"views": views})
-}
-
-type serviceArticle struct {
-	ID uint
 }

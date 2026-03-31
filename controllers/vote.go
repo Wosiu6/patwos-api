@@ -36,7 +36,7 @@ func (vc *VoteController) Vote(c *gin.Context) {
 			return
 		}
 		gin.DefaultWriter.Write([]byte("[VOTE-ERROR] ArticleID: " + strconv.Itoa(int(req.ArticleID)) + " | UserID: " + strconv.Itoa(int(userID.(uint))) + " | Error: " + err.Error() + "\n"))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process vote", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process vote"})
 		return
 	}
 

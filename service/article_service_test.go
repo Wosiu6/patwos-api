@@ -182,7 +182,7 @@ func TestArticleService_CRUDAndViews(t *testing.T) {
 		t.Fatalf("expected 0 views")
 	}
 
-	inc, err := svc.IncrementArticleViews(ctx, article.ID)
+	inc, err := svc.IncrementArticleViews(ctx, article.ID, "127.0.0.1")
 	if err != nil {
 		t.Fatalf("increment views failed: %v", err)
 	}

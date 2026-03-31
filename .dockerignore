@@ -10,3 +10,7 @@ LICENSE
 *.log
 tmp/
 .DS_Store
+docker-compose.yml
+Dockerfile
+.dockerignore
+**/*_test.go

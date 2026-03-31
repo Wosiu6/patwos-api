@@ -14,14 +14,14 @@ import (
 )
 
 type fakeCommentService struct {
-	createFn func(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error)
+	createFn func(ctx context.Context, content string, articleID uint, userID uint) (*models.Comment, error)
 	updateFn func(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error)
 	deleteFn func(ctx context.Context, commentID uint, userID uint) error
 	getFn    func(ctx context.Context, commentID uint) (*models.Comment, error)
-	listFn   func(ctx context.Context, articleID string) ([]models.CommentResponse, error)
+	listFn   func(ctx context.Context, articleID uint) ([]models.CommentResponse, error)
 }
 
-func (f *fakeCommentService) CreateComment(ctx context.Context, content, articleID string, userID uint) (*models.Comment, error) {
+func (f *fakeCommentService) CreateComment(ctx context.Context, content string, articleID uint, userID uint) (*models.Comment, error) {
 	return f.createFn(ctx, content, articleID, userID)
 }
 func (f *fakeCommentService) UpdateComment(ctx context.Context, commentID uint, content string, userID uint) (*models.Comment, error) {
@@ -33,7 +33,7 @@ func (f *fakeCommentService) DeleteComment(ctx context.Context, commentID uint, 
 func (f *fakeCommentService) GetComment(ctx context.Context, commentID uint) (*models.Comment, error) {
 	return f.getFn(ctx, commentID)
 }
-func (f *fakeCommentService) GetCommentsByArticle(ctx context.Context, articleID string) ([]models.CommentResponse, error) {
+func (f *fakeCommentService) GetCommentsByArticle(ctx context.Context, articleID uint) ([]models.CommentResponse, error) {
 	return f.listFn(ctx, articleID)
 }
 
@@ -41,8 +41,8 @@ func TestCommentController_CreateAndUpdate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	controller := NewCommentController(&fakeCommentService{
-		createFn: func(context.Context, string, string, uint) (*models.Comment, error) {
-			return &models.Comment{ID: 1, Content: "hi", ArticleID: "a1", UserID: 1}, nil
+		createFn: func(context.Context, string, uint, uint) (*models.Comment, error) {
+			return &models.Comment{ID: 1, Content: "hi", ArticleID: 1, UserID: 1}, nil
 		},
 		updateFn: func(context.Context, uint, string, uint) (*models.Comment, error) {
 			return nil, service.ErrCommentNotFound
@@ -59,7 +59,7 @@ func TestCommentController_CreateAndUpdate(t *testing.T) {
 		controller.UpdateComment(c)
 	})
 
-	createBody, _ := json.Marshal(models.CreateCommentRequest{Content: "hi", ArticleID: "a1"})
+	createBody, _ := json.Marshal(models.CreateCommentRequest{Content: "hi", ArticleID: 1})
 	createReq := httptest.NewRequest(http.MethodPost, "/comments", bytes.NewReader(createBody))
 	createReq.Header.Set("Content-Type", "application/json")
 	createW := httptest.NewRecorder()
@@ -83,7 +83,7 @@ func TestCommentController_GetAndDelete(t *testing.T) {
 
 	controller := NewCommentController(&fakeCommentService{
 		getFn: func(context.Context, uint) (*models.Comment, error) {
-			return &models.Comment{ID: 1, Content: "hi", ArticleID: "a1", UserID: 1}, nil
+			return &models.Comment{ID: 1, Content: "hi", ArticleID: 1, UserID: 1}, nil
 		},
 		deleteFn: func(context.Context, uint, uint) error {
 			return nil

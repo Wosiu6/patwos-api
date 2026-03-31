@@ -12,7 +12,7 @@ func TestAuthService_RegisterAndLogin(t *testing.T) {
 	ctx := context.Background()
 	userRepo := &fakeUserRepo{byID: map[uint]*models.User{}}
 	cfg := &config.Config{JWTSecret: "secret"}
-	svc := NewAuthService(userRepo, cfg, nil)
+	svc := NewAuthService(userRepo, nil, cfg)
 
 	user, token, err := svc.Register(ctx, "user", "user@example.com", "pass1234")
 	if err != nil {

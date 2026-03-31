@@ -12,7 +12,7 @@ type CommentRepository interface {
 	Update(ctx context.Context, comment *models.Comment) error
 	Delete(ctx context.Context, comment *models.Comment) error
 	FindByID(ctx context.Context, id uint) (*models.Comment, error)
-	FindByArticleID(ctx context.Context, articleID string) ([]models.Comment, error)
+	FindByArticleID(ctx context.Context, articleID uint) ([]models.Comment, error)
 }
 
 type commentRepository struct {
@@ -44,7 +44,7 @@ func (r *commentRepository) FindByID(ctx context.Context, id uint) (*models.Comm
 	return &comment, nil
 }
 
-func (r *commentRepository) FindByArticleID(ctx context.Context, articleID string) ([]models.Comment, error) {
+func (r *commentRepository) FindByArticleID(ctx context.Context, articleID uint) ([]models.Comment, error) {
 	var comments []models.Comment
 	err := r.db.WithContext(ctx).Preload("User").
 		Where("article_id = ?", articleID).

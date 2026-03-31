@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"log"
 	"net/http"
 	"os"
@@ -17,11 +18,46 @@ import (
 	"golang.org/x/time/rate"
 )
 
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
 
+	cmd := "serve"
+	if len(os.Args) > 1 {
+		cmd = os.Args[1]
+	}
+
+	switch cmd {
+	case "migrate":
+		runMigrate()
+	case "serve":
+		runServe()
+	default:
+		log.Fatalf("[ERROR] Unknown command: %s (use 'migrate' or 'serve')", cmd)
+	}
+}
+
+func runMigrate() {
+	cfg := config.LoadConfig()
+
+	log.Printf("[DATABASE] Connecting to %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
+	db, err := database.Connect(cfg)
+	if err != nil {
+		log.Fatalf("[ERROR] Failed to connect to database: %v", err)
+	}
+
+	log.Printf("[MIGRATE] Running migrations...")
+	if err := database.RunMigrations(db, migrationsFS); err != nil {
+		log.Fatalf("[ERROR] Migration failed: %v", err)
+	}
+	log.Printf("[MIGRATE] Migrations completed successfully")
+}
+
+func runServe() {
 	cfg := config.LoadConfig()
 
 	log.Printf("[DATABASE] Connecting to %s@%s:%s/%s", cfg.DBUser, cfg.DBHost, cfg.DBPort, cfg.DBName)
@@ -31,31 +67,23 @@ func main() {
 	}
 	log.Printf("[DATABASE] Connected successfully")
 
-	log.Printf("[DATABASE] Running migrations...")
-	if err := database.Migrate(db); err != nil {
-		log.Fatalf("[ERROR] Failed to run migrations: %v", err)
-	}
-	log.Printf("[DATABASE] Migrations completed")
-
 	gin.SetMode(cfg.GinMode)
 
 	router := gin.New()
 
 	router.Use(gin.Recovery())
 
-	router.Use(gin.Logger())
-
-	router.Use(middleware.RequestLogger())
-
 	router.Use(middleware.SecurityHeaders())
+
+	router.Use(middleware.CORSMiddleware(cfg.AllowedOrigins))
+
+	router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))
 
 	router.Use(middleware.RequestTimeout(cfg.RequestTimeout))
 
 	router.Use(middleware.BodySizeLimiter(cfg.MaxRequestSize))
 
-	router.Use(middleware.RateLimitMiddleware(rate.Limit(100), 200))
-
-	router.Use(middleware.CORSMiddleware(cfg.AllowedOrigins))
+	router.Use(middleware.RequestLogger())
 
 	if len(cfg.TrustedProxies) > 0 {
 		if err := router.SetTrustedProxies(cfg.TrustedProxies); err != nil {

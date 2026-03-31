@@ -1,5 +1,4 @@
 services:
-  # PatWos - Api: my api for my portfolio
   patwos-api:
     container_name: patwos-api
     image: ghcr.io/wosiu6/patwos-api:latest

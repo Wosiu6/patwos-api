@@ -19,8 +19,9 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB, cfg *config.Config) {
 	commentRepo := repository.NewCommentRepository(db)
 	voteRepo := repository.NewVoteRepository(db)
 	articleRepo := repository.NewArticleRepository(db)
+	revokedTokenRepo := repository.NewRevokedTokenRepository(db)
 
-	authService := service.NewAuthService(userRepo, cfg, db)
+	authService := service.NewAuthService(userRepo, revokedTokenRepo, cfg)
 	commentService := service.NewCommentService(commentRepo)
 	voteService := service.NewVoteService(voteRepo)
 	articleService := service.NewArticleService(articleRepo, userRepo)

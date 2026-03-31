@@ -18,9 +18,13 @@ func NewCommentController(commentService service.CommentService) *CommentControl
 }
 
 func (cc *CommentController) GetCommentsByArticle(c *gin.Context) {
-	articleID := c.Param("article_id")
+	articleID, err := strconv.ParseUint(c.Param("article_id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid article ID"})
+		return
+	}
 
-	comments, err := cc.service.GetCommentsByArticle(c.Request.Context(), articleID)
+	comments, err := cc.service.GetCommentsByArticle(c.Request.Context(), uint(articleID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
 		return

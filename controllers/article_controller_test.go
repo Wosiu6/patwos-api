@@ -39,7 +39,7 @@ func (f *fakeArticleService) GetAllArticles(ctx context.Context, limit, offset i
 func (f *fakeArticleService) GetArticleViews(context.Context, uint) (uint, error) {
 	return 0, nil
 }
-func (f *fakeArticleService) IncrementArticleViews(context.Context, uint) (uint, error) {
+func (f *fakeArticleService) IncrementArticleViews(context.Context, uint, string) (uint, error) {
 	return 0, nil
 }
 

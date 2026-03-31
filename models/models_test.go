@@ -45,7 +45,7 @@ func TestArticleResponses(t *testing.T) {
 }
 
 func TestCommentToResponse(t *testing.T) {
-	comment := &Comment{ID: 1, Content: "c", ArticleID: "a", UserID: 2, User: User{ID: 2, Username: "u"}}
+	comment := &Comment{ID: 1, Content: "c", ArticleID: 1, UserID: 2, User: User{ID: 2, Username: "u"}}
 	resp := comment.ToResponse()
 	if resp.User.ID != 2 || resp.Content != "c" {
 		t.Fatalf("unexpected comment response")

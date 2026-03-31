@@ -81,7 +81,7 @@
 				
 				<option value="file12">github.com/Wosiu6/patwos-api/middleware/logger.go (0.0%)</option>
 				
-				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (49.0%)</option>
+				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (54.9%)</option>
 				
 				<option value="file14">github.com/Wosiu6/patwos-api/middleware/request_timeout.go (100.0%)</option>
 				
@@ -1492,7 +1492,7 @@ func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter <span class="cov8" t
         return limiter</span>
 }
 
-func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov0" title="0">{
+func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
         ticker := time.NewTicker(interval)
         defer ticker.Stop()
 

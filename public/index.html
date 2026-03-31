@@ -81,7 +81,7 @@
 				
 				<option value="file12">github.com/Wosiu6/patwos-api/middleware/logger.go (0.0%)</option>
 				
-				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (54.9%)</option>
+				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (49.0%)</option>
 				
 				<option value="file14">github.com/Wosiu6/patwos-api/middleware/request_timeout.go (100.0%)</option>
 				
@@ -897,6 +897,34 @@ func Connect(cfg *config.Config) (*gorm.DB, error) <span class="cov0" title="0">
         return db, nil</span>
 }
 
+func ForceMigrationVersion(db *gorm.DB, migrationsFS fs.FS, version int) error <span class="cov0" title="0">{
+        sqlDB, err := db.DB()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get sql.DB: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">driver, err := postgres.WithInstance(sqlDB, &amp;postgres.Config{})
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create migration driver: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">source, err := iofs.New(migrationsFS, "migrations")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to read migrations: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">m, err := migrate.NewWithInstance("iofs", source, "postgres", driver)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create migrator: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := m.Force(version); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("force version failed: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
 func RunMigrations(db *gorm.DB, migrationsFS fs.FS) error <span class="cov0" title="0">{
         sqlDB, err := db.DB()
         if err != nil </span><span class="cov0" title="0">{
@@ -935,6 +963,7 @@ import (
         "net/http"
         "os"
         "os/signal"
+        "strconv"
         "syscall"
 
         "github.com/Wosiu6/patwos-api/config"
@@ -962,10 +991,19 @@ func main() <span class="cov0" title="0">{
         <span class="cov0" title="0">switch cmd </span>{
         case "migrate":<span class="cov0" title="0">
                 runMigrate()</span>
+        case "migrate-force":<span class="cov0" title="0">
+                if len(os.Args) &lt; 3 </span><span class="cov0" title="0">{
+                        log.Fatal("[ERROR] Usage: ./main migrate-force &lt;version&gt;")
+                }</span>
+                <span class="cov0" title="0">version, err := strconv.Atoi(os.Args[2])
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatalf("[ERROR] Invalid version: %s", os.Args[2])
+                }</span>
+                <span class="cov0" title="0">runMigrateForce(version)</span>
         case "serve":<span class="cov0" title="0">
                 runServe()</span>
         default:<span class="cov0" title="0">
-                log.Fatalf("[ERROR] Unknown command: %s (use 'migrate' or 'serve')", cmd)</span>
+                log.Fatalf("[ERROR] Unknown command: %s (use 'migrate', 'migrate-force &lt;version&gt;', or 'serve')", cmd)</span>
         }
 }
 
@@ -983,6 +1021,21 @@ func runMigrate() <span class="cov0" title="0">{
                 log.Fatalf("[ERROR] Migration failed: %v", err)
         }</span>
         <span class="cov0" title="0">log.Printf("[MIGRATE] Migrations completed successfully")</span>
+}
+
+func runMigrateForce(version int) <span class="cov0" title="0">{
+        cfg := config.LoadConfig()
+
+        db, err := database.Connect(cfg)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("[ERROR] Failed to connect to database: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">log.Printf("[MIGRATE] Forcing migration version to %d...", version)
+        if err := database.ForceMigrationVersion(db, migrationsFS, version); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("[ERROR] Force version failed: %v", err)
+        }</span>
+        <span class="cov0" title="0">log.Printf("[MIGRATE] Forced to version %d successfully", version)</span>
 }
 
 func runServe() <span class="cov0" title="0">{
@@ -1430,7 +1483,7 @@ func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter <span class="cov8" t
         return limiter</span>
 }
 
-func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
+func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov0" title="0">{
         ticker := time.NewTicker(interval)
         defer ticker.Stop()
 

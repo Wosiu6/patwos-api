@@ -33,6 +33,34 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 	return db, nil
 }
 
+func ForceMigrationVersion(db *gorm.DB, migrationsFS fs.FS, version int) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql.DB: %w", err)
+	}
+
+	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create migration driver: %w", err)
+	}
+
+	source, err := iofs.New(migrationsFS, "migrations")
+	if err != nil {
+		return fmt.Errorf("failed to read migrations: %w", err)
+	}
+
+	m, err := migrate.NewWithInstance("iofs", source, "postgres", driver)
+	if err != nil {
+		return fmt.Errorf("failed to create migrator: %w", err)
+	}
+
+	if err := m.Force(version); err != nil {
+		return fmt.Errorf("force version failed: %w", err)
+	}
+
+	return nil
+}
+
 func RunMigrations(db *gorm.DB, migrationsFS fs.FS) error {
 	sqlDB, err := db.DB()
 	if err != nil {

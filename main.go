@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/Wosiu6/patwos-api/config"
@@ -34,10 +35,19 @@ func main() {
 	switch cmd {
 	case "migrate":
 		runMigrate()
+	case "migrate-force":
+		if len(os.Args) < 3 {
+			log.Fatal("[ERROR] Usage: ./main migrate-force <version>")
+		}
+		version, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			log.Fatalf("[ERROR] Invalid version: %s", os.Args[2])
+		}
+		runMigrateForce(version)
 	case "serve":
 		runServe()
 	default:
-		log.Fatalf("[ERROR] Unknown command: %s (use 'migrate' or 'serve')", cmd)
+		log.Fatalf("[ERROR] Unknown command: %s (use 'migrate', 'migrate-force <version>', or 'serve')", cmd)
 	}
 }
 
@@ -55,6 +65,21 @@ func runMigrate() {
 		log.Fatalf("[ERROR] Migration failed: %v", err)
 	}
 	log.Printf("[MIGRATE] Migrations completed successfully")
+}
+
+func runMigrateForce(version int) {
+	cfg := config.LoadConfig()
+
+	db, err := database.Connect(cfg)
+	if err != nil {
+		log.Fatalf("[ERROR] Failed to connect to database: %v", err)
+	}
+
+	log.Printf("[MIGRATE] Forcing migration version to %d...", version)
+	if err := database.ForceMigrationVersion(db, migrationsFS, version); err != nil {
+		log.Fatalf("[ERROR] Force version failed: %v", err)
+	}
+	log.Printf("[MIGRATE] Forced to version %d successfully", version)
 }
 
 func runServe() {

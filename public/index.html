@@ -898,7 +898,16 @@ func Connect(cfg *config.Config) (*gorm.DB, error) <span class="cov0" title="0">
 }
 
 func ForceMigrationVersion(db *gorm.DB, migrationsFS fs.FS, version int) error <span class="cov0" title="0">{
-        sqlDB, err := db.DB()
+        if version == 0 </span><span class="cov0" title="0">{
+                sqlDB, err := db.DB()
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to get sql.DB: %w", err)
+                }</span>
+                <span class="cov0" title="0">_, err = sqlDB.Exec("DROP TABLE IF EXISTS schema_migrations")
+                return err</span>
+        }
+
+        <span class="cov0" title="0">sqlDB, err := db.DB()
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to get sql.DB: %w", err)
         }</span>

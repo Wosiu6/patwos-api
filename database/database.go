@@ -34,6 +34,15 @@ func Connect(cfg *config.Config) (*gorm.DB, error) {
 }
 
 func ForceMigrationVersion(db *gorm.DB, migrationsFS fs.FS, version int) error {
+	if version == 0 {
+		sqlDB, err := db.DB()
+		if err != nil {
+			return fmt.Errorf("failed to get sql.DB: %w", err)
+		}
+		_, err = sqlDB.Exec("DROP TABLE IF EXISTS schema_migrations")
+		return err
+	}
+
 	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("failed to get sql.DB: %w", err)

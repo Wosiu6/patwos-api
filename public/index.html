@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/Wosiu6/patwos-api/authcache/revoked_token_cache.go (70.8%)</option>
+				<option value="file0">github.com/Wosiu6/patwos-api/authcache/revoked_token_cache.go (58.3%)</option>
 				
 				<option value="file1">github.com/Wosiu6/patwos-api/config/config.go (55.6%)</option>
 				
@@ -81,7 +81,7 @@
 				
 				<option value="file12">github.com/Wosiu6/patwos-api/middleware/logger.go (0.0%)</option>
 				
-				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (54.9%)</option>
+				<option value="file13">github.com/Wosiu6/patwos-api/middleware/ratelimit.go (49.0%)</option>
 				
 				<option value="file14">github.com/Wosiu6/patwos-api/middleware/request_timeout.go (100.0%)</option>
 				
@@ -169,7 +169,7 @@ func IsRevoked(token string) bool <span class="cov8" title="1">{
         <span class="cov8" title="1">return true</span>
 }
 
-func (c *revokedTokenCache) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
+func (c *revokedTokenCache) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov0" title="0">{
         ticker := time.NewTicker(interval)
         defer ticker.Stop()
 
@@ -1492,7 +1492,7 @@ func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter <span class="cov8" t
         return limiter</span>
 }
 
-func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov8" title="1">{
+func (i *IPRateLimiter) cleanupLoop(interval time.Duration, maxAge time.Duration) <span class="cov0" title="0">{
         ticker := time.NewTicker(interval)
         defer ticker.Stop()
 

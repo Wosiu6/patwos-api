@@ -10,7 +10,7 @@ services:
       - default
       - t3_proxy
     ports:
-      - "${PATWOS_API_PORT}:8080"
+      - "${PATWOS_API_PORT:-8080}:${PATWOS_API_PORT:-8080}"
     depends_on:
       patwos-api-db:
         condition: service_healthy
@@ -25,7 +25,7 @@ services:
       DB_HOST: ${PATWOS_API_DB_HOST}
       DB_USER: ${PATWOS_API_DB_USER}
       DB_NAME: ${PATWOS_API_DB_NAME}
-      API_PORT: ${PATWOS_API_PORT}
+      API_PORT: ${PATWOS_API_PORT:-8080}
       GIN_MODE: release
       ALLOWED_ORIGINS: ${PATWOS_API_ALLOWED_ORIGINS}
       MAX_REQUEST_SIZE: ${PATWOS_API_MAX_REQUEST_SIZE}

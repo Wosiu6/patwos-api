@@ -85,6 +85,7 @@ func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 
 func normalizeOrigin(origin string) string {
 	origin = strings.TrimSpace(strings.TrimRight(origin, "/"))
+	origin = strings.Trim(origin, "\"'")
 	if origin == "" {
 		return ""
 	}
@@ -94,7 +95,14 @@ func normalizeOrigin(origin string) string {
 
 	parsed, err := url.Parse(origin)
 	if err == nil && parsed.Scheme != "" && parsed.Host != "" {
-		return strings.ToLower(parsed.Scheme) + "://" + strings.ToLower(parsed.Host)
+		host := strings.ToLower(parsed.Host)
+		scheme := strings.ToLower(parsed.Scheme)
+		if strings.Contains(host, ":") {
+			if (scheme == "https" && strings.HasSuffix(host, ":443")) || (scheme == "http" && strings.HasSuffix(host, ":80")) {
+				host = strings.Split(host, ":")[0]
+			}
+		}
+		return scheme + "://" + host
 	}
 
 	return strings.ToLower(origin)

@@ -151,3 +151,41 @@ func TestCORSMiddleware_NormalizesOriginCase(t *testing.T) {
 		t.Fatalf("expected normalized lowercase origin, got %q", got)
 	}
 }
+
+func TestCORSMiddleware_AllowsQuotedConfiguredOrigins(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(CORSMiddleware([]string{"\"https://patwos.com\"", "'https://www.patwos.com'"}))
+	r.GET("/", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Origin", "https://patwos.com")
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if got := w.Header().Get("Access-Control-Allow-Origin"); got != "https://patwos.com" {
+		t.Fatalf("expected quoted origin to be normalized, got %q", got)
+	}
+}
+
+func TestCORSMiddleware_NormalizesDefaultPort(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.Use(CORSMiddleware([]string{"https://patwos.com:443", "http://localhost:80"}))
+	r.GET("/", func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Origin", "https://patwos.com")
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	if got := w.Header().Get("Access-Control-Allow-Origin"); got != "https://patwos.com" {
+		t.Fatalf("expected default port to normalize, got %q", got)
+	}
+}
